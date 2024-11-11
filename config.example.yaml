@@ -1,0 +1,28 @@
+liveness:
+    file:
+        watch: /dev/shm/healthz
+
+influxdb:
+    url: http://proxy.green-rabbit.net:8086
+    org: home
+    token: strBCB9segqccgxsR5Xe_9RnCqkBFYX9aOKvxVR4lr3iLEb7HXuGqsN40YU6DIb6TZm9bvKLW5OWQS7sB8AQbQ==
+    bucket: sensor
+
+rain_cloud:
+    view:
+        url: "https://www.jma.go.jp/bosai/nowc/#zoom:13/lat:35.681422/lon:139.762831/colordepth:normal/elements:hrpns&slmcs&slmcs_fcst"
+    img:
+        url_tmpl: "https://imageflux.tenki.jp/large/static-images/radar/%Y/%m/%d/%H/{:02d}/00/pref-16-large.jpg"
+
+rain_fall:
+    sensor:
+        name: rasp-weather-1
+        type: sensor.rasp
+
+notify:
+    line:
+        channel:
+            access_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXxx
+
+    footprint:
+        file: /dev/shm/rainfall.notify

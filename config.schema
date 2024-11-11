@@ -1,0 +1,148 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "liveness": {
+            "type": "object",
+            "properties": {
+                "file": {
+                    "type": "object",
+                    "properties": {
+                        "watch": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "watch"
+                    ]
+                }
+            },
+            "required": [
+                "file"
+            ]
+        },
+        "influxdb": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
+                },
+                "org": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "bucket": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "bucket",
+                "org",
+                "token",
+                "url"
+            ]
+        },
+        "rain_cloud": {
+            "type": "object",
+            "properties": {
+                "view": {
+                    "type": "object",
+                    "properties": {
+                        "url": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "url"
+                    ]
+                },
+                "img": {
+                    "type": "object",
+                    "properties": {
+                        "url_tmpl": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "url_tmpl"
+                    ]
+                }
+            },
+            "required": [
+                "img",
+                "view"
+            ]
+        },
+        "rain_fall": {
+            "type": "object",
+            "properties": {
+                "sensor": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "type"
+                    ]
+                }
+            },
+            "required": [
+                "sensor"
+            ]
+        },
+        "notify": {
+            "type": "object",
+            "properties": {
+                "line": {
+                    "type": "object",
+                    "properties": {
+                        "channel": {
+                            "type": "object",
+                            "properties": {
+                                "access_token": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "access_token"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "channel"
+                    ]
+                },
+                "footprint": {
+                    "type": "object",
+                    "properties": {
+                        "file": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "file"
+                    ]
+                }
+            },
+            "required": [
+                "footprint",
+                "line"
+            ]
+        }
+    },
+    "required": [
+        "influxdb",
+        "liveness",
+        "notify",
+        "rain_cloud",
+        "rain_fall"
+    ]
+}

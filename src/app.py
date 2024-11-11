@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+"""
+雨雲レーダー画像を生成します．
+
+Usage:
+  app.py [-c CONFIG] [-d]
+
+Options:
+  -c CONFIG    : CONFIG を設定ファイルとして読み込んで実行します．[default: config.yaml]
+  -d           : デバッグモード．
+"""
+
+import logging
+import pathlib
+import time
+
+import my_lib.footprint
+import rainfall.monitor
+
+SCHEMA_CONFIG = "config.schema"
+
+
+def do_work(config):
+    while True:
+        rainfall.monitor.watch(config)
+
+        my_lib.footprint.update(pathlib.Path(config["liveness"]["file"]["watch"]))
+        time.sleep(30)
+
+
+if __name__ == "__main__":
+    import docopt
+    import my_lib.config
+    import my_lib.logger
+
+    args = docopt.docopt(__doc__)
+
+    config_file = args["-c"]
+    debug_mode = args["-d"]
+
+    log_level = logging.DEBUG if debug_mode else logging.INFO
+
+    my_lib.logger.init("notify.rainfall", level=log_level)
+
+    config = my_lib.config.load(config_file, pathlib.Path(SCHEMA_CONFIG))
+
+    do_work(config)
