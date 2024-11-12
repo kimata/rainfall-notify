@@ -136,6 +136,17 @@
                 "footprint",
                 "line"
             ]
+        },
+        "watch": {
+            "type": "object",
+            "properties": {
+                "interval_sec": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "interval_sec"
+            ]
         }
     },
     "required": [
@@ -143,6 +154,7 @@
         "liveness",
         "notify",
         "rain_cloud",
-        "rain_fall"
+        "rain_fall",
+        "watch"
     ]
 }

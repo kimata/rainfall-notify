@@ -15,6 +15,7 @@ import pathlib
 import time
 
 import my_lib.footprint
+
 import rainfall.monitor
 
 SCHEMA_CONFIG = "config.schema"
@@ -25,7 +26,8 @@ def do_work(config):
         rainfall.monitor.watch(config)
 
         my_lib.footprint.update(pathlib.Path(config["liveness"]["file"]["watch"]))
-        time.sleep(30)
+
+        time.sleep(config["watch"]["interval_sec"])
 
 
 if __name__ == "__main__":

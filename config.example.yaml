@@ -26,3 +26,6 @@ notify:
 
     footprint:
         file: /dev/shm/rainfall.notify
+
+watch:
+    interval_sec: 20
