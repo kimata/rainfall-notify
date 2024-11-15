@@ -79,6 +79,7 @@ def notify_line(config):
 
 def check_forecast(config, hour, period_hours=3):
     weather_data = my_lib.weather.get_precip_by_hour_tenki(config["rain_fall"]["forecast"]["tenki"])
+
     precip_list = [
         hour_data["precip"]
         for day in [weather_data["today"], weather_data["tommorow"]]
@@ -112,8 +113,6 @@ def notify_voice(config):
 
 
 def watch(config):
-    notify_voice(config)
-
     raining_start = check_raining(config)
     raining_before = (datetime.datetime.now(TIMEZONE) - raining_start).total_seconds()
 
