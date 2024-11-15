@@ -49,29 +49,27 @@ test-walk-through:
         - rye run pytest tests/test_basic.py
 
         
-# deploy:
-#     stage: deploy
+deploy:
+    stage: deploy
 
-#     dependencies: []
+    dependencies: []
 
-#     image:
-#         name: bitnami/kubectl:latest
-#         entrypoint: ['']
+    image:
+        name: bitnami/kubectl:latest
+        entrypoint: ['']
 
-#     script:
-#         - kubectl config get-contexts
-#         - kubectl config use-context kimata/sensing-py:pod-rollout
-#         - kubectl --insecure-skip-tls-verify=true rollout restart -n sensor daemonset sensor-weather-deployment
-#         - kubectl --insecure-skip-tls-verify=true rollout restart -n sensor daemonset sensor-room-deployment
-#         - kubectl --insecure-skip-tls-verify=true rollout restart -n sensor daemonset sensor-aqua-deployment
+    script:
+        - kubectl config get-contexts
+        - kubectl config use-context kimata/rainfall-notify:pod-rollout
+        - kubectl --insecure-skip-tls-verify=true rollout restart -n bot deployment rainfall-notify-deployment
 
-#     rules:
-#         # NOTE: 自動実行ではデプロイしない
-#         - if: $CI_PIPELINE_SOURCE == "schedule"
-#           when: never
-#         - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
-#           when: never
-#         - when: on_success
+    rules:
+        # NOTE: 自動実行ではデプロイしない
+        - if: $CI_PIPELINE_SOURCE == "schedule"
+          when: never
+        - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+          when: never
+        - when: on_success
           
 renovate:
     stage: renovate
