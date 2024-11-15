@@ -44,6 +44,25 @@
                 "url"
             ]
         },
+        "voice": {
+            "type": "object",
+            "properties": {
+                "server": {
+                    "type": "object",
+                    "properties": {
+                        "url": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "url"
+                    ]
+                }
+            },
+            "required": [
+                "server"
+            ]
+        },
         "rain_cloud": {
             "type": "object",
             "properties": {
@@ -92,9 +111,29 @@
                         "name",
                         "type"
                     ]
+                },
+                "forecast": {
+                    "type": "object",
+                    "properties": {
+                        "tenki": {
+                            "type": "object",
+                            "properties": {
+                                "url": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "url"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "tenki"
+                    ]
                 }
             },
             "required": [
+                "forecast",
                 "sensor"
             ]
         },
@@ -120,6 +159,29 @@
                         "channel"
                     ]
                 },
+                "voice": {
+                    "type": "object",
+                    "properties": {
+                        "hour": {
+                            "type": "object",
+                            "properties": {
+                                "start": {
+                                    "type": "integer"
+                                },
+                                "end": {
+                                    "type": "integer"
+                                }
+                            },
+                            "required": [
+                                "end",
+                                "start"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "hour"
+                    ]
+                },
                 "footprint": {
                     "type": "object",
                     "properties": {
@@ -134,7 +196,8 @@
             },
             "required": [
                 "footprint",
-                "line"
+                "line",
+                "voice"
             ]
         },
         "watch": {
@@ -155,6 +218,7 @@
         "notify",
         "rain_cloud",
         "rain_fall",
+        "voice",
         "watch"
     ]
 }

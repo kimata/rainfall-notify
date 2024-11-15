@@ -8,6 +8,11 @@ influxdb:
     token: strBCB9segqccgxsR5Xe_9RnCqkBFYX9aOKvxVR4lr3iLEb7HXuGqsN40YU6DIb6TZm9bvKLW5OWQS7sB8AQbQ==
     bucket: sensor
 
+
+voice:
+    server:
+        url: http://192.168.0.20:50021
+
 rain_cloud:
     view:
         url: "https://www.jma.go.jp/bosai/nowc/#zoom:13/lat:35.681422/lon:139.762831/colordepth:normal/elements:hrpns&slmcs&slmcs_fcst"
@@ -19,10 +24,20 @@ rain_fall:
         name: rasp-weather-1
         type: sensor.rasp
 
+    forecast:
+        tenki:
+            url: https://tenki.jp/forecast/3/16/4410/13109/1hour.html
+
+
 notify:
     line:
         channel:
             access_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXxx
+            
+    voice:
+        hour:
+            start: 8
+            end: 21
 
     footprint:
         file: /dev/shm/rainfall.notify
