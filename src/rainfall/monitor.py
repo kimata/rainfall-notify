@@ -16,6 +16,8 @@ import time
 
 import my_lib.footprint
 import my_lib.notify.line
+import my_lib.voice
+import my_lib.weather
 import pytz
 from my_lib.sensor_data import get_last_event
 
@@ -47,6 +49,8 @@ def get_cloud_url(config):
 
 
 def notify_line(config):
+    logging.info("Notify by LINE")
+
     rainfall_info = {
         "cloud_url": config["rain_cloud"]["view"]["url"],
         "cloud_image": get_cloud_url(config),
@@ -73,11 +77,52 @@ def notify_line(config):
     my_lib.notify.line.send(config["notify"]["line"], message)
 
 
+def check_forecast(config, hour, period_hours=3):
+    weather_data = my_lib.weather.get_precip_by_hour_tenki(config["rain_fall"]["forecast"]["tenki"])
+    precip_list = [
+        hour_data["precip"]
+        for day in [weather_data["today"], weather_data["tommorow"]]
+        for hour_data in day["data"]
+    ]
+
+    return sum(precip_list[hour : hour + period_hours])
+
+
+def notify_voice(config):
+    PERIOD_HOURS = 3
+
+    hour = datetime.datetime.now().hour
+    if (hour < config["notify"]["voice"]["hour"]["start"]) or (
+        hour > config["notify"]["voice"]["hour"]["end"]
+    ):
+        # NOTE: 指定された時間内ではなかったら音声通知しない
+        logging.info("Skipping notify by voice (out of hour)")
+        return
+
+    precip_sum = check_forecast(config, hour, PERIOD_HOURS)
+    if precip_sum < 1:
+        logging.info("Skipping notify by voice (small rainfall)")
+        return
+
+    logging.info("Notify by voice")
+
+    message = f"雨が降り始めました。今後{PERIOD_HOURS}時間で{precip_sum}mm降る見込みです。"
+
+    wav = my_lib.voice.synthesize(config, message)
+
+
 def watch(config):
+    notify_voice(config)
+
     raining_start = check_raining(config)
     raining_before = (datetime.datetime.now(TIMEZONE) - raining_start).total_seconds()
 
     if raining_before >= my_lib.footprint.elapsed(pathlib.Path(config["notify"]["footprint"]["file"])):
+        # NOTE: 既に通知している場合
+        return False
+    elif my_lib.footprint.elapsed(pathlib.Path(config["notify"]["footprint"]["file"])) < (60 * 60):
+        # NOTE: 1時間位内に通知している場合は，連続した雨とみなす
+        my_lib.footprint.update(pathlib.Path(config["notify"]["footprint"]["file"]))
         return False
 
     logging.info(
@@ -91,8 +136,8 @@ def watch(config):
         logging.warning("Since this is likely the initial check, skipping notification.")
         return False
 
-    logging.info("Notify by LINE")
     notify_line(config)
+    notify_voice(config)
 
     return True
 
