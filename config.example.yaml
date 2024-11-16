@@ -29,6 +29,11 @@ rain_fall:
             url: https://tenki.jp/forecast/3/16/4410/13109/1hour.html
 
 
+weather:
+    forecast:
+        yahoo:
+            url: https://weather.yahoo.co.jp/weather/13/4410/13103.html
+            
 notify:
     line:
         channel:

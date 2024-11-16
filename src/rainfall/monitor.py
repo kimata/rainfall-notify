@@ -51,25 +51,25 @@ def get_cloud_url(config):
 def notify_line(config):
     logging.info("Notify by LINE")
 
-    rainfall_info = {
-        "cloud_url": config["rain_cloud"]["view"]["url"],
-        "cloud_image": get_cloud_url(config),
-    }
-
     message = {
         "type": "template",
         "altText": "雨が降り始めました！",
         "template": {
             "type": "buttons",
-            "thumbnailImageUrl": rainfall_info["cloud_image"],
+            "thumbnailImageUrl": get_cloud_url(config),
             "imageAspectRatio": "rectangle",
             "imageSize": "cover",
             "imageBackgroundColor": "#FFFFFF",
             "title": "天気速報",
             "text": "雨が降り始めました！",
-            "defaultAction": {"type": "uri", "label": "雨雲を見る", "uri": rainfall_info["cloud_url"]},
+            "defaultAction": {
+                "type": "uri",
+                "label": "雨雲を見る",
+                "uri": config["rain_cloud"]["view"]["url"],
+            },
             "actions": [
-                {"type": "uri", "label": "雨雲を見る", "uri": rainfall_info["cloud_url"]},
+                {"type": "uri", "label": "天気予報", "uri": config["rain_cloud"]["view"]["url"]},
+                {"type": "uri", "label": "雨雲", "uri": config["weather"]["forecast"]["yahoo"]["url"]},
             ],
         },
     }
