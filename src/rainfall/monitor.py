@@ -109,7 +109,10 @@ def notify_voice(config):
 
     message = f"雨が降り始めました。今後{PERIOD_HOURS}時間で{precip_sum}mm降る見込みです。"
 
-    wav = my_lib.voice.synthesize(config, message)
+    message_wav = my_lib.voice.synthesize(config, message)
+
+    my_lib.voice.play(my_lib.voice.convert_wav_data(open(config["notify"]["voice"]["chime"], "rb").read()))
+    my_lib.voice.play(message_wav)
 
 
 def watch(config):
