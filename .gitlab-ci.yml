@@ -26,6 +26,7 @@ test-prepare:
     stage: pre-test
 
     script:
+        - apt install build-essential libasound2-dev
         - rye sync
 
     artifacts:
