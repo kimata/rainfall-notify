@@ -68,8 +68,8 @@ def notify_line(config):
                 "uri": config["rain_cloud"]["view"]["url"],
             },
             "actions": [
-                {"type": "uri", "label": "天気予報", "uri": config["rain_cloud"]["view"]["url"]},
-                {"type": "uri", "label": "雨雲", "uri": config["weather"]["forecast"]["yahoo"]["url"]},
+                {"type": "uri", "label": "天気予報", "uri": config["weather"]["forecast"]["yahoo"]["url"]},
+                {"type": "uri", "label": "雨雲", "uri": config["rain_cloud"]["view"]["url"]},
             ],
         },
     }
