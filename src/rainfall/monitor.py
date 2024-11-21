@@ -97,12 +97,12 @@ def notify_voice(config):
         hour > config["notify"]["voice"]["hour"]["end"]
     ):
         # NOTE: 指定された時間内ではなかったら音声通知しない
-        logging.info("Skipping notify by voice (out of hour)")
+        logging.info("Skipping notify by voice (out of hour: %d)", hour)
         return
 
     precip_sum = check_forecast(config, hour, PERIOD_HOURS)
     if precip_sum < 1:
-        logging.info("Skipping notify by voice (small rainfall)")
+        logging.info("Skipping notify by voice (small rainfall forecast: %.1fmm)", precip_sum)
         return
 
     logging.info("Notify by voice")
