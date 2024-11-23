@@ -22,6 +22,7 @@ import pytz
 from my_lib.sensor_data import get_last_event
 
 TIMEZONE = pytz.timezone("Asia/Tokyo")
+PERIOD_HOURS = 3
 
 
 def check_raining(config):
@@ -48,7 +49,7 @@ def get_cloud_url(config):
     return url
 
 
-def notify_line(config):
+def notify_line(config, precip_sum):
     logging.info("Notify by LINE")
 
     message = {
@@ -61,7 +62,7 @@ def notify_line(config):
             "imageSize": "cover",
             "imageBackgroundColor": "#FFFFFF",
             "title": "天気速報",
-            "text": "雨が降り始めました！",
+            "text": f"雨が降り始めました。\n今後{PERIOD_HOURS}時間で{precip_sum}mm降る見込みです。",
             "defaultAction": {
                 "type": "uri",
                 "label": "雨雲を見る",
@@ -89,10 +90,7 @@ def check_forecast(config, hour, period_hours=3):
     return sum(precip_list[hour : hour + period_hours])
 
 
-def notify_voice(config):
-    PERIOD_HOURS = 3
-
-    hour = datetime.datetime.now().hour
+def notify_voice(config, hour, precip_sum):
     if (hour < config["notify"]["voice"]["hour"]["start"]) or (
         hour > config["notify"]["voice"]["hour"]["end"]
     ):
@@ -100,7 +98,6 @@ def notify_voice(config):
         logging.info("Skipping notify by voice (out of hour: %d)", hour)
         return
 
-    precip_sum = check_forecast(config, hour, PERIOD_HOURS)
     if precip_sum < 1:
         logging.info("Skipping notify by voice (small rainfall forecast: %.1fmm)", precip_sum)
         return
@@ -118,6 +115,9 @@ def notify_voice(config):
 def watch(config):
     raining_start = check_raining(config)
     raining_before = (datetime.datetime.now(TIMEZONE) - raining_start).total_seconds()
+
+    hour = datetime.datetime.now().hour
+    precip_sum = check_forecast(config, hour, PERIOD_HOURS)
 
     if raining_before >= my_lib.footprint.elapsed(pathlib.Path(config["notify"]["footprint"]["file"])):
         # NOTE: 既に通知している場合
@@ -138,8 +138,8 @@ def watch(config):
         logging.warning("Since this is likely the initial check, skipping notification.")
         return False
 
-    notify_line(config)
-    notify_voice(config)
+    notify_line(config, precip_sum)
+    notify_voice(config, hour, precip_sum)
 
     return True
 
