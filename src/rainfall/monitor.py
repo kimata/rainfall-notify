@@ -21,7 +21,7 @@ import my_lib.weather
 import zoneinfo
 from my_lib.sensor_data import get_last_event
 
-TIMEZONE = zoneinfo.ZoneInfo("Asia/Tokyo")
+ZONEINFO = zoneinfo.ZoneInfo("Asia/Tokyo")
 PERIOD_HOURS = 3
 
 
@@ -33,14 +33,14 @@ def check_raining(config):
         "raining",
     )
 
-    return raining_start.astimezone(TIMEZONE)
+    return raining_start.astimezone(ZONEINFO)
 
 
 def get_cloud_url(config):
     # MEMO: 10分遡って5分単位に丸める
     now = datetime.datetime.fromtimestamp(
         ((time.time() - 60 * 10) // (60 * 5)) * (60 * 5),
-        tz=datetime.datetime.now(TIMEZONE).astimezone().tzinfo,
+        tz=datetime.datetime.now(ZONEINFO).astimezone().tzinfo,
     )
 
     url = now.strftime(config["rain_cloud"]["img"]["url_tmpl"]).format(now.minute // 5 * 5)
@@ -117,9 +117,9 @@ def notify_voice(config, hour, precip_sum):
 
 def watch(config):
     raining_start = check_raining(config)
-    raining_before = (datetime.datetime.now(TIMEZONE) - raining_start).total_seconds()
+    raining_before = (datetime.datetime.now(ZONEINFO) - raining_start).total_seconds()
 
-    hour = datetime.datetime.now(TIMEZONE).hour
+    hour = datetime.datetime.now(ZONEINFO).hour
     precip_sum = check_forecast(config, hour, PERIOD_HOURS)
 
     if raining_before >= my_lib.footprint.elapsed(pathlib.Path(config["notify"]["footprint"]["file"])):
