@@ -16,7 +16,6 @@ import pathlib
 import time
 
 import my_lib.footprint
-
 import rainfall.monitor
 
 SCHEMA_CONFIG = "config.schema"
