@@ -63,7 +63,7 @@ def notify_line(config, precip_sum):
             "imageSize": "cover",
             "imageBackgroundColor": "#FFFFFF",
             "title": "天気速報",
-            "text": f"雨が降り始めました。\n今後{PERIOD_HOURS}時間で{precip_sum}mm降る見込みです。",
+            "text": f"雨が降り始めました。\n今後{PERIOD_HOURS}時間で{precip_sum:.1f}mm降る見込みです。",
             "defaultAction": {
                 "type": "uri",
                 "label": "雨雲を見る",
