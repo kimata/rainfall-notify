@@ -125,8 +125,8 @@ def watch(config):
     if raining_before >= my_lib.footprint.elapsed(pathlib.Path(config["notify"]["footprint"]["file"])):
         # NOTE: 既に通知している場合
         return False
-    elif my_lib.footprint.elapsed(pathlib.Path(config["notify"]["footprint"]["file"])) < (60 * 60):
-        # NOTE: 1時間位内に通知している場合は，連続した雨とみなす
+    elif my_lib.footprint.elapsed(pathlib.Path(config["notify"]["footprint"]["file"])) < (30 * 60):
+        # NOTE: 30分内に通知している場合は，連続した雨とみなす
         my_lib.footprint.update(pathlib.Path(config["notify"]["footprint"]["file"]))
         return False
 
