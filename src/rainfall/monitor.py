@@ -99,7 +99,7 @@ def notify_voice(config, hour, precip_sum):
         logging.info("Skipping notify by voice (out of hour: %d)", hour)
         return
 
-    if precip_sum < 1:
+    if precip_sum < 0.2:
         logging.info("Skipping notify by voice (small rainfall forecast: %.1fmm)", precip_sum)
         return
 
