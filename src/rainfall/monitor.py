@@ -109,8 +109,10 @@ def notify_voice(config, hour, precip_sum):
 
     message_wav = my_lib.voice.synthesize(config, message)
 
-    with pathlib.Path(config["notify"]["voice"]["chime"]).open("rb") as file:
-        my_lib.voice.play(my_lib.voice.convert_wav_data(file.read()))
+    with pathlib.Path(config["notify"]["voice"]["chime"]["file"]).open("rb") as file:
+        my_lib.voice.play(
+            my_lib.voice.convert_wav_data(file.read()), config["notify"]["voice"]["chime"]["duration"]
+        )
 
     my_lib.voice.play(message_wav)
 
