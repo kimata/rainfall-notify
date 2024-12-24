@@ -42,10 +42,7 @@ def check_raining(config):
 
 def get_cloud_url(config):
     # MEMO: 10分遡って5分単位に丸める
-    now = datetime.datetime.fromtimestamp(
-        ((time.time() - 60 * 10) // (60 * 5)) * (60 * 5),
-        tz=datetime.datetime.now(ZONEINFO).astimezone().tzinfo,
-    )
+    now = datetime.datetime.fromtimestamp(((time.time() - 60 * 10) // (60 * 5)) * (60 * 5), tz=ZONEINFO)
 
     url = now.strftime(config["rain_cloud"]["img"]["url_tmpl"]).format(now.minute // 5 * 5)
 
