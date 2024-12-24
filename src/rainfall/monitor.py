@@ -33,7 +33,7 @@ def check_raining(config):
         "raining",
     )
 
-    return raining_start.astimezone(ZONEINFO)
+    return datetime.datetime.fromtimestamp(raining_start, tz=ZONEINFO)
 
 
 def get_cloud_url(config):
