@@ -51,9 +51,11 @@ def test_basic_with_rainfall(config, mocker):
 
 
 def test_basic_without_rainfall(config, mocker):
+    import time
+
     mocker.patch(
         "rainfall.monitor.get_last_event",
-        return_value=datetime.datetime.now(TIMEZONE) - datetime.timedelta(days=1),
+        return_value=time.time() - 86400,
     )
 
     app.do_work(config, 1)
