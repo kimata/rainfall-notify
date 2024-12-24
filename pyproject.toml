@@ -12,7 +12,7 @@ requires-python = ">= 3.10"
 dependencies = [
     "docopt-ng>=0.9.0",
     "influxdb-client[ciso]>=1.44.0",
-    "my-lib @ git+https://github.com/kimata/my-py-lib@ba2a4b50f3c179a3cf7d76b56e13f6d24b2e06ad",
+    "my-lib @ git+https://github.com/kimata/my-py-lib@c70224422ae9f254cff4c43400ea1a6b6219070b",
     "simpleaudio>=1.0.4",
     "scipy>=1.14.1",
     "numpy>=2.1.3",
