@@ -33,7 +33,11 @@ def check_raining(config):
         "raining",
     )
 
-    return datetime.datetime.fromtimestamp(raining_start, tz=ZONEINFO)
+    if raining_start is None:
+        # NOTE: まだデータがない場合は，一日前に降り始めたことにする
+        return datetime.now(ZONEINFO) - datetime.timedelta(days=1)
+    else:
+        return datetime.datetime.fromtimestamp(raining_start, tz=ZONEINFO)
 
 
 def get_cloud_url(config):
