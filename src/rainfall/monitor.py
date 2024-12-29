@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-雨雲レーダー画像を生成します．
+降雨の開始を監視します．
 
 Usage:
-  rain_cloud_panel.py [-c CONFIG]
+  monitor.py [-c CONFIG]
 
 Options:
   -c CONFIG    : CONFIG を設定ファイルとして読み込んで実行します．[default: config.yaml]
@@ -46,7 +46,7 @@ def get_raining_sum(config):
         config["influxdb"],
         config["rain_fall"]["sensor"]["type"],
         config["rain_fall"]["sensor"]["name"],
-        "raining",
+        "rain",
         f"-{SUM_MIN}m",
         every_min=1,
         window_min=1,
@@ -110,7 +110,7 @@ def check_forecast(config, hour, period_hours=3):
 def notify_voice_impl(config, raining_sum, precip_sum, hour):
     if (raining_sum < 0.1) and (precip_sum < 0.1):
         logging.info(
-            "Skipping notify by voice (small rainfall, sum: %.1fmm,  forecast: %.1fmm)",
+            "Skipping notify by voice (small rainfall, sum: %.2fmm,  forecast: %.1fmm)",
             raining_sum,
             precip_sum,
         )
@@ -188,8 +188,10 @@ def watch(config):
     raining_before = (datetime.datetime.now(ZONEINFO) - raining_start).total_seconds()
 
     hour = datetime.datetime.now(ZONEINFO).hour
-    precip_sum = check_forecast(config, hour, PERIOD_HOURS)
     raining_sum = get_raining_sum(config)
+    precip_sum = check_forecast(config, hour, PERIOD_HOURS)
+
+    logging.debug("raining_sum: %.2f, precip_sum: %.2f", raining_sum, precip_sum)
 
     notify_line(config, raining_start, raining_before, precip_sum)
     notify_voice(config, raining_start, raining_before, raining_sum, precip_sum, hour)
@@ -204,7 +206,7 @@ if __name__ == "__main__":
 
     args = docopt.docopt(__doc__)
 
-    my_lib.logger.init("test", level=logging.INFO)
+    my_lib.logger.init("test", level=logging.DEBUG)
 
     config = my_lib.config.load(args["-c"])
 
