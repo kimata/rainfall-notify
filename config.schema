@@ -137,6 +137,33 @@
                 "sensor"
             ]
         },
+        "weather": {
+            "type": "object",
+            "properties": {
+                "forecast": {
+                    "type": "object",
+                    "properties": {
+                        "yahoo": {
+                            "type": "object",
+                            "properties": {
+                                "url": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "url"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "yahoo"
+                    ]
+                }
+            },
+            "required": [
+                "forecast"
+            ]
+        },
         "notify": {
             "type": "object",
             "properties": {
@@ -176,21 +203,57 @@
                                 "end",
                                 "start"
                             ]
+                        },
+                        "chime": {
+                            "type": "object",
+                            "properties": {
+                                "file": {
+                                    "type": "string"
+                                },
+                                "duration": {
+                                    "type": "integer"
+                                }
+                            },
+                            "required": [
+                                "duration",
+                                "file"
+                            ]
                         }
                     },
                     "required": [
+                        "chime",
                         "hour"
                     ]
                 },
                 "footprint": {
                     "type": "object",
                     "properties": {
-                        "file": {
-                            "type": "string"
+                        "voice": {
+                            "type": "object",
+                            "properties": {
+                                "file": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "file"
+                            ]
+                        },
+                        "line": {
+                            "type": "object",
+                            "properties": {
+                                "file": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "file"
+                            ]
                         }
                     },
                     "required": [
-                        "file"
+                        "line",
+                        "voice"
                     ]
                 }
             },
@@ -219,6 +282,7 @@
         "rain_cloud",
         "rain_fall",
         "voice",
-        "watch"
+        "watch",
+        "weather"
     ]
 }

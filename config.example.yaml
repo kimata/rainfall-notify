@@ -45,7 +45,10 @@ notify:
             end: 21
 
     footprint:
-        file: /dev/shm/rainfall.notify
+        voice:
+            file: /dev/shm/rainfall.notify.voice
+        line:
+            file: /dev/shm/rainfall.notify.line
 
 watch:
     interval_sec: 20

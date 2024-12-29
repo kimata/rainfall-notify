@@ -32,7 +32,8 @@ def _clear():
     config = my_lib.config.load(CONFIG_FILE)
 
     pathlib.Path(config["liveness"]["file"]["watch"]).unlink(missing_ok=True)
-    pathlib.Path(config["notify"]["footprint"]["file"]).unlink(missing_ok=True)
+    pathlib.Path(config["notify"]["footprint"]["line"]["file"]).unlink(missing_ok=True)
+    pathlib.Path(config["notify"]["footprint"]["voice"]["file"]).unlink(missing_ok=True)
 
 
 @pytest.fixture()
