@@ -24,6 +24,7 @@ SCHEMA_CONFIG = "config.schema"
 def do_work(config, count=0):
     i = 0
     while True:
+        start_time = time.time()
         rainfall.monitor.watch(config)
 
         my_lib.footprint.update(pathlib.Path(config["liveness"]["file"]["watch"]))
@@ -33,7 +34,7 @@ def do_work(config, count=0):
             logging.info("The specified number of attempts has been reached, so the process will end.")
             break
 
-        time.sleep(config["watch"]["interval_sec"])
+        time.sleep(max(config["watch"]["interval_sec"] - (time.time() - start_time), 1))
 
 
 if __name__ == "__main__":
