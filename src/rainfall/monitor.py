@@ -94,6 +94,8 @@ def notify_line_impl(config, precip_sum):
 
     my_lib.notify.line.send(config["notify"]["line"], message)
 
+    return True
+
 
 def check_forecast(config, hour, period_hours=3):
     weather_data = my_lib.weather.get_precip_by_hour_tenki(config["rain_fall"]["forecast"]["tenki"])
@@ -114,14 +116,14 @@ def notify_voice_impl(config, raining_sum, precip_sum, hour):
             raining_sum,
             precip_sum,
         )
-        return
+        return False
 
     if (hour < config["notify"]["voice"]["hour"]["start"]) or (
         hour > config["notify"]["voice"]["hour"]["end"]
     ):
         # NOTE: 指定された時間内ではなかったら音声通知しない
         logging.info("Skipping notify by voice (out of hour: %d)", hour)
-        return
+        return False
 
     logging.info("Notify by voice")
 
@@ -139,6 +141,8 @@ def notify_voice_impl(config, raining_sum, precip_sum, hour):
         )
 
     my_lib.voice.play(message_wav)
+
+    return True
 
 
 def is_notify_done(config, raining_before, mode):
