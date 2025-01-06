@@ -22,7 +22,7 @@ import zoneinfo
 from my_lib.sensor_data import get_last_event, get_sum
 
 ZONEINFO = zoneinfo.ZoneInfo("Asia/Tokyo")
-PERIOD_HOURS = 3
+PERIOD_HOURS = 3  # NOTE: Yahoo天気のデータは3時間毎の降雨量なのでそれに合わせる
 SUM_MIN = 3
 
 
@@ -97,16 +97,20 @@ def notify_line_impl(config, precip_sum):
     return True
 
 
-def check_forecast(config, hour, period_hours=3):
-    weather_data = my_lib.weather.get_precip_by_hour_tenki(config["rain_fall"]["forecast"]["tenki"])
+def check_forecast(config, hour):
+    weather_info = my_lib.weather.get_weather_yahoo(config["weather"]["forecast"]["yahoo"])
+    weather_data = weather_info["today"]["data"] + weather_info["tomorrow"]["data"]
 
-    precip_list = [
-        hour_data["precip"]
-        for day in [weather_data["today"], weather_data["tommorow"]]
-        for hour_data in day["data"]
-    ]
+    precip_list = [hour_data["precip"] for hour_data in weather_data]
 
-    return sum(precip_list[hour : hour + period_hours])
+    # NOTE: 3時間毎のデータなので線形補完する
+    lower = hour // PERIOD_HOURS
+    upper = lower + 1
+
+    weight_upper = (hour - lower * PERIOD_HOURS) / PERIOD_HOURS
+    weight_lower = 1 - weight_upper
+
+    return precip_list[lower] * weight_lower + precip_list[upper] * weight_upper
 
 
 def notify_voice_impl(config, raining_sum, precip_sum, hour):
@@ -193,7 +197,7 @@ def watch(config):
 
     hour = datetime.datetime.now(ZONEINFO).hour
     raining_sum = get_raining_sum(config)
-    precip_sum = check_forecast(config, hour, PERIOD_HOURS)
+    precip_sum = check_forecast(config, hour)
 
     logging.debug("raining_sum: %.2f, precip_sum: %.2f", raining_sum, precip_sum)
 

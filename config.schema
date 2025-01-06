@@ -111,29 +111,9 @@
                         "name",
                         "type"
                     ]
-                },
-                "forecast": {
-                    "type": "object",
-                    "properties": {
-                        "tenki": {
-                            "type": "object",
-                            "properties": {
-                                "url": {
-                                    "type": "string"
-                                }
-                            },
-                            "required": [
-                                "url"
-                            ]
-                        }
-                    },
-                    "required": [
-                        "tenki"
-                    ]
                 }
             },
             "required": [
-                "forecast",
                 "sensor"
             ]
         },
@@ -153,9 +133,21 @@
                             "required": [
                                 "url"
                             ]
+                        },
+                        "tenki": {
+                            "type": "object",
+                            "properties": {
+                                "url": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "url"
+                            ]
                         }
                     },
                     "required": [
+                        "tenki",
                         "yahoo"
                     ]
                 }
