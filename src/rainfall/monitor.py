@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """
-降雨の開始を監視します．
+降雨の開始を監視します。
 
 Usage:
-  monitor.py [-c CONFIG]
+  monitor.py [-c CONFIG] [-d] [-D]
 
 Options:
-  -c CONFIG    : CONFIG を設定ファイルとして読み込んで実行します．[default: config.yaml]
+  -c CONFIG         : CONFIG を設定ファイルとして読み込んで実行します。[default: config.yaml]
+  -d                : ダミーモードで実行します。CI テストで利用することを想定しています。
+  -D                : デバッグモードで動作します。
 """
 
 import datetime
@@ -16,12 +18,12 @@ import time
 
 import my_lib.footprint
 import my_lib.notify.line
+import my_lib.sensor_data
+import my_lib.time
 import my_lib.voice
 import my_lib.weather
-import zoneinfo
-from my_lib.sensor_data import get_last_event, get_sum
+from my_lib.sensor_data import get_last_event
 
-ZONEINFO = zoneinfo.ZoneInfo("Asia/Tokyo")
 PERIOD_HOURS = 3  # NOTE: Yahoo天気のデータは3時間毎の降雨量なのでそれに合わせる
 SUM_MIN = 3
 
@@ -29,27 +31,25 @@ SUM_MIN = 3
 def check_raining(config):
     raining_start = get_last_event(
         config["influxdb"],
-        config["rain_fall"]["sensor"]["type"],
-        config["rain_fall"]["sensor"]["name"],
+        config["rain_fall"]["sensor"]["measure"],
+        config["rain_fall"]["sensor"]["hostname"],
         "raining",
     )
 
     if raining_start is None:
-        # NOTE: まだデータがない場合は，一日前に降り始めたことにする
-        return datetime.now(ZONEINFO) - datetime.timedelta(days=1)
+        # NOTE: まだデータがない場合は、一日前に降り始めたことにする
+        return my_lib.time.now() - datetime.timedelta(days=1)
     else:
-        return raining_start.astimezone(ZONEINFO)
+        return raining_start.astimezone(my_lib.time.get_timezone())
 
 
 def get_raining_sum(config):
-    raining_sum = get_sum(
+    raining_sum = my_lib.sensor_data.get_minute_sum(
         config["influxdb"],
-        config["rain_fall"]["sensor"]["type"],
-        config["rain_fall"]["sensor"]["name"],
+        config["rain_fall"]["sensor"]["measure"],
+        config["rain_fall"]["sensor"]["hostname"],
         "rain",
-        f"-{SUM_MIN}m",
-        every_min=1,
-        window_min=1,
+        SUM_MIN,
     )
 
     return raining_sum if raining_sum is not None else 0
@@ -154,7 +154,7 @@ def is_notify_done(config, raining_before, mode):
         # NOTE: 既に通知している場合
         return True
     elif my_lib.footprint.elapsed(pathlib.Path(config["notify"]["footprint"][mode]["file"])) < (30 * 60):
-        # NOTE: 30分内に通知している場合は，連続した雨とみなす
+        # NOTE: 30分内に通知している場合は、連続した雨とみなす
         my_lib.footprint.update(pathlib.Path(config["notify"]["footprint"][mode]["file"]))
         return True
 
@@ -191,33 +191,39 @@ def notify_voice(config, raining_start, raining_before, raining_sum, precip_sum,
     return False
 
 
-def watch(config):
+def watch(config, dummy_mode):
     raining_start = check_raining(config)
-    raining_before = (datetime.datetime.now(ZONEINFO) - raining_start).total_seconds()
+    raining_before = (my_lib.time.now() - raining_start).total_seconds()
 
-    hour = datetime.datetime.now(ZONEINFO).hour
+    hour = my_lib.time.now().hour
     raining_sum = get_raining_sum(config)
     precip_sum = check_forecast(config, hour)
 
     logging.debug("raining_sum: %.2f, precip_sum: %.2f", raining_sum, precip_sum)
 
-    notify_line(config, raining_start, raining_before, precip_sum)
-    notify_voice(config, raining_start, raining_before, raining_sum, precip_sum, hour)
+    if not dummy_mode:
+        notify_line(config, raining_start, raining_before, precip_sum)
+        notify_voice(config, raining_start, raining_before, raining_sum, precip_sum, hour)
 
     return True
 
 
 if __name__ == "__main__":
+    # TEST Code
     import docopt
     import my_lib.config
     import my_lib.logger
 
     args = docopt.docopt(__doc__)
 
-    my_lib.logger.init("test", level=logging.DEBUG)
+    config_file = args["-c"]
+    dummy_mode = args["-d"]
+    debug_mode = args["-D"]
 
-    config = my_lib.config.load(args["-c"])
+    my_lib.logger.init("test", level=logging.DEBUG if debug_mode else logging.INFO)
 
-    watch(config)
+    config = my_lib.config.load(config_file)
+
+    watch(config, dummy_mode)
 
     logging.info("Finish.")

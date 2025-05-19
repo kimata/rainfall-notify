@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-雨の降り始めを通知します．
+雨の降り始めを通知します。
 
 Usage:
-  app.py [-c CONFIG] [-d] [-n COUNT]
+  app.py [-c CONFIG] [-D] [-n COUNT]
 
 Options:
-  -c CONFIG    : CONFIG を設定ファイルとして読み込んで実行します．[default: config.yaml]
-  -n COUNT     : 実行回数 [default: 0]
-  -d           : デバッグモード．
+  -c CONFIG         : CONFIG を設定ファイルとして読み込んで実行します。[default: config.yaml]
+  -n COUNT     	    : 実行回数 [default: 0]
+  -D                : デバッグモードで動作します。
 """
 
 import logging
@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     config_file = args["-c"]
     count = int(args["-n"])
-    debug_mode = args["-d"]
+    debug_mode = args["-D"]
 
     log_level = logging.DEBUG if debug_mode else logging.INFO
 

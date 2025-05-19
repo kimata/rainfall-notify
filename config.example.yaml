@@ -21,8 +21,8 @@ rain_cloud:
 
 rain_fall:
     sensor:
-        name: rasp-weather-1
-        type: sensor.rasp
+        hostname: rasp-weather-1
+        measure: sensor.rasp
 
 weather:
     forecast:
