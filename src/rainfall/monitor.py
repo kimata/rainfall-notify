@@ -170,6 +170,7 @@ def is_notify_done(config, raining_start, mode):
         return True
     if my_lib.footprint.elapsed(config["notify"]["footprint"][mode]["file"]) < (30 * 60):
         # NOTE: 30分内に通知している場合は、連続した雨とみなす
+        logging.info("Recent notification sent. Treated as continuous rain. Skipping.")
         my_lib.footprint.update(config["notify"]["footprint"][mode]["file"])
         return True
 
