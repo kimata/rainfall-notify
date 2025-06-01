@@ -22,32 +22,59 @@ import my_lib.sensor_data
 import my_lib.time
 import my_lib.voice
 import my_lib.weather
-from my_lib.sensor_data import get_last_event
+import psutil
 
 PERIOD_HOURS = 3  # NOTE: Yahoo天気のデータは3時間毎の降雨量なのでそれに合わせる
-SUM_MIN = 3
+SUM_MIN = 3  # NOTE: 直近の雨量を積算する期間[分]
+SOLAR_RAD_THRESHOLD = 700  # 日射量がこれよりある場合は、雨の降り始め扱いにしない
+
+
+def get_solar_rad(config, raining_start):
+    start = (raining_start - datetime.timedelta(minutes=10)).isoformat()
+    stop = (raining_start + datetime.timedelta(minutes=1)).isoformat()
+
+    solar_rad_info = my_lib.sensor_data.fetch_data(
+        config["influxdb"],
+        config["sensor"]["rain_fall"]["measure"],
+        config["sensor"]["rain_fall"]["hostname"],
+        "solar_rad",
+        start=start,
+        stop=stop,
+        last=True,
+    )
+
+    logging.info(solar_rad_info)
+    return solar_rad_info["value"][0] if solar_rad_info["valid"] else None
 
 
 def check_raining(config):
-    raining_start = get_last_event(
+    raining_start = my_lib.sensor_data.get_last_event(
         config["influxdb"],
-        config["rain_fall"]["sensor"]["measure"],
-        config["rain_fall"]["sensor"]["hostname"],
+        config["sensor"]["rain_fall"]["measure"],
+        config["sensor"]["rain_fall"]["hostname"],
         "raining",
     )
 
     if raining_start is None:
-        # NOTE: まだデータがない場合は、一日前に降り始めたことにする
-        return my_lib.time.now() - datetime.timedelta(days=1)
-    else:
-        return raining_start.astimezone(my_lib.time.get_timezone())
+        # NOTE: まだデータがない場合は、一年前に降り始めたことにする
+        return my_lib.time.now() - datetime.timedelta(days=365)
+
+    raining_start = raining_start.astimezone(my_lib.time.get_zoneinfo())
+
+    solar_rad = get_solar_rad(config, raining_start)
+    if (solar_rad is not None) and (solar_rad >= SOLAR_RAD_THRESHOLD):
+        logging.warning("Rain detected by sensor, but ignored due to high solar radiation.")
+        # NOTE: 日射量が多い場合は、一年前に降り始めたことにする
+        return my_lib.time.now() - datetime.timedelta(days=365)
+
+    return raining_start
 
 
 def get_raining_sum(config):
     raining_sum = my_lib.sensor_data.get_minute_sum(
         config["influxdb"],
-        config["rain_fall"]["sensor"]["measure"],
-        config["rain_fall"]["sensor"]["hostname"],
+        config["sensor"]["rain_fall"]["measure"],
+        config["sensor"]["rain_fall"]["hostname"],
         "rain",
         SUM_MIN,
     )
@@ -57,7 +84,9 @@ def get_raining_sum(config):
 
 def get_cloud_url(config):
     # MEMO: 10分遡って5分単位に丸める
-    now = datetime.datetime.fromtimestamp(((time.time() - 60 * 10) // (60 * 5)) * (60 * 5), tz=ZONEINFO)
+    now = datetime.datetime.fromtimestamp(
+        ((time.time() - 60 * 10) // (60 * 5)) * (60 * 5), tz=my_lib.time.get_zoneinfo()
+    )
 
     url = now.strftime(config["rain_cloud"]["img"]["url_tmpl"]).format(now.minute // 5 * 5)
 
@@ -67,8 +96,6 @@ def get_cloud_url(config):
 
 
 def notify_line_impl(config, precip_sum):
-    logging.info("Notify by LINE")
-
     message = {
         "type": "template",
         "altText": "雨が降り始めました！",
@@ -113,10 +140,81 @@ def check_forecast(config, hour):
     return precip_list[lower] * weight_lower + precip_list[upper] * weight_upper
 
 
-def notify_voice_impl(config, raining_sum, precip_sum, hour):
+def notify_voice_impl(config, raining_sum, precip_sum):
+    message = "雨が降り始めました。"
+    if raining_sum >= 0.1:
+        message += f"過去{SUM_MIN}分間に{raining_sum:.1f}mm降っています。"
+    if precip_sum >= 0.1:
+        message += f"今後{PERIOD_HOURS}時間で{precip_sum:.1f}mm降る見込みです。"
+
+    message_wav = my_lib.voice.synthesize(config, message)
+
+    if "chime" in config["notify"]["voice"]:
+        with pathlib.Path(config["notify"]["voice"]["chime"]["file"]).open("rb") as file:
+            my_lib.voice.play(
+                my_lib.voice.convert_wav_data(file.read()), config["notify"]["voice"]["chime"]["duration"]
+            )
+
+    my_lib.voice.play(message_wav)
+
+    return True
+
+
+def is_notify_done(config, raining_start, mode):
+    process_start = datetime.datetime.fromtimestamp(
+        psutil.Process().create_time(), tz=my_lib.time.get_zoneinfo()
+    )
+
+    if (raining_start - process_start).total_seconds() < -60 * 10:
+        # NONE 雨の降り始めがプログラム開始前の場合、通知をしない
+        logging.debug("Since this is likely the initial check, skipping notification.")
+        return True
+
+    raining_before = (my_lib.time.now() - raining_start).total_seconds()
+
+    if raining_before >= my_lib.footprint.elapsed(pathlib.Path(config["notify"]["footprint"][mode]["file"])):
+        # NOTE: 既に通知している場合
+        return True
+    elif my_lib.footprint.elapsed(pathlib.Path(config["notify"]["footprint"][mode]["file"])) < (30 * 60):
+        # NOTE: 30分内に通知している場合は、連続した雨とみなす
+        my_lib.footprint.update(pathlib.Path(config["notify"]["footprint"][mode]["file"]))
+        return True
+
+    return False
+
+
+def notify_line(config, raining_start, precip_sum):
+    logging.info("Notify by LINE")
+    logging.info("Raining started at %s", raining_start.strftime("%Y/%m/%d %H:%M"))
+
+    notify_line_impl(config, precip_sum)
+
+    my_lib.footprint.update(pathlib.Path(config["notify"]["footprint"]["line"]["file"]))
+
+
+def notify_voice(config, raining_start, raining_sum, precip_sum, hour):
+    logging.info("Notify by LINE")
+    if notify_voice_impl(config, raining_sum, precip_sum, hour):
+        my_lib.footprint.update(pathlib.Path(config["notify"]["footprint"]["voice"]["file"]))
+        return True
+
+    return False
+
+
+def should_notify_line(config, raining_start):
+    if is_notify_done(config, raining_start, "line"):
+        return False
+
+    return True
+
+
+def should_notify_voice(config, raining_start, raining_sum, precip_sum, hour):
+    if is_notify_done(config, raining_start, "voice"):
+        return False
+
     if (raining_sum < 0.1) and (precip_sum < 0.1):
         logging.info(
-            "Skipping notify by voice (small rainfall, sum: %.2fmm,  forecast: %.1fmm)",
+            "Skipping notify by voice (small rainfall, sum: %.2fmm, forecast: %.1fmm)",
             raining_sum,
             precip_sum,
         )
@@ -131,69 +229,11 @@ def notify_voice_impl(config, raining_sum, precip_sum, hour):
 
     logging.info("Notify by voice")
 
-    message = "雨が降り始めました。"
-    if raining_sum >= 0.1:
-        message += f"過去{SUM_MIN}分間に{raining_sum:.1f}mm降っています。"
-    if precip_sum >= 0.1:
-        message += f"今後{PERIOD_HOURS}時間で{precip_sum:.1f}mm降る見込みです。"
-
-    message_wav = my_lib.voice.synthesize(config, message)
-
-    with pathlib.Path(config["notify"]["voice"]["chime"]["file"]).open("rb") as file:
-        my_lib.voice.play(
-            my_lib.voice.convert_wav_data(file.read()), config["notify"]["voice"]["chime"]["duration"]
-        )
-
-    my_lib.voice.play(message_wav)
-
     return True
 
 
-def is_notify_done(config, raining_before, mode):
-    if raining_before >= my_lib.footprint.elapsed(pathlib.Path(config["notify"]["footprint"][mode]["file"])):
-        # NOTE: 既に通知している場合
-        return True
-    elif my_lib.footprint.elapsed(pathlib.Path(config["notify"]["footprint"][mode]["file"])) < (30 * 60):
-        # NOTE: 30分内に通知している場合は、連続した雨とみなす
-        my_lib.footprint.update(pathlib.Path(config["notify"]["footprint"][mode]["file"]))
-        return True
-
-    if raining_before > (30 * 60):
-        logging.warning("Since this is likely the initial check, skipping notification.")
-        return True
-
-    return False
-
-
-def notify_line(config, raining_start, raining_before, precip_sum):
-    if is_notify_done(config, raining_before, "line"):
-        return False
-
-    logging.info(
-        "Raining started at %s (%s sec before)",
-        raining_start.strftime("%Y/%m/%d %H:%M"),
-        f"{raining_before:,.0f}",
-    )
-
-    notify_line_impl(config, precip_sum)
-
-    my_lib.footprint.update(pathlib.Path(config["notify"]["footprint"]["line"]["file"]))
-
-
-def notify_voice(config, raining_start, raining_before, raining_sum, precip_sum, hour):
-    if is_notify_done(config, raining_before, "voice"):
-        return False
-
-    if notify_voice_impl(config, raining_sum, precip_sum, hour):
-        my_lib.footprint.update(pathlib.Path(config["notify"]["footprint"]["voice"]["file"]))
-        return True
-
-    return False
-
-
-def watch(config, dummy_mode):
+def watch(config, dummy_mode=False):
     raining_start = check_raining(config)
-    raining_before = (my_lib.time.now() - raining_start).total_seconds()
 
     hour = my_lib.time.now().hour
     raining_sum = get_raining_sum(config)
@@ -201,11 +241,13 @@ def watch(config, dummy_mode):
 
     logging.debug("raining_sum: %.2f, precip_sum: %.2f", raining_sum, precip_sum)
 
-    if not dummy_mode:
-        notify_line(config, raining_start, raining_before, precip_sum)
-        notify_voice(config, raining_start, raining_before, raining_sum, precip_sum, hour)
+    if dummy_mode:
+        return
 
-    return True
+    if should_notify_line(config, raining_start):
+        notify_line(config, raining_start, precip_sum)
+    if should_notify_voice(config, raining_start, raining_sum, precip_sum, hour):
+        notify_voice(config, raining_start, raining_sum, precip_sum)
 
 
 if __name__ == "__main__":

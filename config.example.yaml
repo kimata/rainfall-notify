@@ -19,8 +19,12 @@ rain_cloud:
     img:
         url_tmpl: "https://imageflux.tenki.jp/large/static-images/radar/%Y/%m/%d/%H/{:02d}/00/pref-16-large.jpg"
 
-rain_fall:
-    sensor:
+sensor:
+    rain_fall:
+        hostname: rasp-weather-1
+        measure: sensor.rasp
+
+    solar_rad:
         hostname: rasp-weather-1
         measure: sensor.rasp
 

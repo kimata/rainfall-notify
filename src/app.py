@@ -27,7 +27,7 @@ def do_work(config, count=0):
         start_time = time.time()
         rainfall.monitor.watch(config)
 
-        my_lib.footprint.update(pathlib.Path(config["liveness"]["file"]["watch"]))
+        my_lib.footprint.update(config["liveness"]["file"]["watch"])
 
         i += 1
         if i == count:
@@ -52,6 +52,6 @@ if __name__ == "__main__":
 
     my_lib.logger.init("notify.rainfall", level=log_level)
 
-    config = my_lib.config.load(config_file, pathlib.Path(SCHEMA_CONFIG))
+    config = my_lib.config.load(config_file, SCHEMA_CONFIG)
 
     do_work(config, count)
