@@ -43,7 +43,6 @@ def get_solar_rad(config, raining_start):
         last=True,
     )
 
-    logging.info(solar_rad_info)
     return solar_rad_info["value"][0] if solar_rad_info["valid"] else None
 
 
@@ -59,15 +58,7 @@ def check_raining(config):
         # NOTE: まだデータがない場合は、一年前に降り始めたことにする
         return my_lib.time.now() - datetime.timedelta(days=365)
 
-    raining_start = raining_start.astimezone(my_lib.time.get_zoneinfo())
-
-    solar_rad = get_solar_rad(config, raining_start)
-    if (solar_rad is not None) and (solar_rad >= SOLAR_RAD_THRESHOLD):
-        logging.warning("Rain detected by sensor, but ignored due to high solar radiation.")
-        # NOTE: 日射量が多い場合は、一年前に降り始めたことにする
-        return my_lib.time.now() - datetime.timedelta(days=365)
-
-    return raining_start
+    return raining_start.astimezone(my_lib.time.get_zoneinfo())
 
 
 def get_raining_sum(config):
@@ -177,8 +168,15 @@ def is_notify_done(config, raining_start, mode):
     if raining_before >= my_lib.footprint.elapsed(config["notify"]["footprint"][mode]["file"]):
         # NOTE: 既に通知している場合
         return True
-    elif my_lib.footprint.elapsed(config["notify"]["footprint"][mode]["file"]) < (30 * 60):
+    if my_lib.footprint.elapsed(config["notify"]["footprint"][mode]["file"]) < (30 * 60):
         # NOTE: 30分内に通知している場合は、連続した雨とみなす
+        my_lib.footprint.update(config["notify"]["footprint"][mode]["file"])
+        return True
+
+    solar_rad = get_solar_rad(config, raining_start)
+    if (solar_rad is not None) and (solar_rad >= SOLAR_RAD_THRESHOLD):
+        logging.warning("Rain detected by sensor, but ignored due to high solar radiation.")
+        # NOTE: 雨の降り始め時点で日射量が多い場合は無視する
         my_lib.footprint.update(config["notify"]["footprint"][mode]["file"])
         return True
 
