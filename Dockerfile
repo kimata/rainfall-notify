@@ -1,4 +1,4 @@
-FROM python:3.11-bookworm AS build
+FROM python:3.12-bookworm AS build
 
 RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -25,7 +25,7 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
     pip install --break-system-packages --no-cache-dir -r requirements.lock
 
 
-FROM python:3.11-slim-bookworm AS prod
+FROM python:3.12-slim-bookworm AS prod
 
 RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
