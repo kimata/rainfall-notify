@@ -192,9 +192,9 @@ def notify_line(config, raining_start, precip_sum):
     my_lib.footprint.update(pathlib.Path(config["notify"]["footprint"]["line"]["file"]))
 
 
-def notify_voice(config, raining_start, raining_sum, precip_sum, hour):
+def notify_voice(config, raining_start, raining_sum, precip_sum):
     logging.info("Notify by LINE")
-    if notify_voice_impl(config, raining_sum, precip_sum, hour):
+    if notify_voice_impl(config, raining_sum, precip_sum):
         my_lib.footprint.update(pathlib.Path(config["notify"]["footprint"]["voice"]["file"]))
         return True
 

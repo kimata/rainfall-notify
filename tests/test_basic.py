@@ -62,6 +62,13 @@ def _clear(config):
     my_lib.notify.line.hist_clear()
 
 
+def move_to(time_machine, hour):
+    import my_lib.time
+
+    logging.info("TIME move to %02d:%02d", hour, 0)
+    time_machine.move_to(my_lib.time.now().replace(hour=hour, minute=0, second=0))
+
+
 def check_notify_line(message, index=-1):
     import my_lib.notify.line
 
@@ -75,58 +82,88 @@ def check_notify_line(message, index=-1):
         assert notify_hist[index].find(message) != -1, f"「{message}」が Slack で通知されていません。"
 
 
+def sensor_mock(mocker, last_event, raining_sum, solar_rad):
+    mocker.patch(
+        "my_lib.sensor_data.fetch_data",
+        return_value={
+            "value": [solar_rad],
+            "time": [],
+            "valid": True,
+        },
+    )
+    mocker.patch("my_lib.sensor_data.get_minute_sum", return_value=raining_sum)
+    mocker.patch("my_lib.sensor_data.get_last_event", return_value=last_event)
+
+
 ######################################################################
 def test_basic(config):
     app.do_work(config, 1)
 
 
-def test_basic_with_rainfall(config, mocker):
+def test_basic_with_rainfall_0(config, mocker, time_machine):
     import my_lib.time
 
-    mocker.patch(
-        "my_lib.sensor_data.fetch_data",
-        return_value={
-            "value": [0],
-            "time": [],
-            "valid": True,
-        },
-    )
-    mocker.patch("my_lib.sensor_data.get_last_event", return_value=my_lib.time.now())
+    def voice_play(wav_data):
+        voice_play.done = True
+
+    voice_play.done = False
+
+    mocker.patch("my_lib.voice.play", side_effect=voice_play)
+    sensor_mock(mocker, last_event=my_lib.time.now(), raining_sum=10, solar_rad=0)
+
+    move_to(time_machine, 12)
+
     app.do_work(config, 1)
 
     check_notify_line("雨が降り始めました！")
+    assert voice_play.done
 
 
-def test_basic_with_rainfall_solar_rad(config, mocker):
+def test_basic_with_rainfall_1(config, mocker, time_machine):
     import my_lib.time
 
-    mocker.patch(
-        "my_lib.sensor_data.fetch_data",
-        return_value={
-            "value": [1000],
-            "time": [],
-            "valid": True,
-        },
-    )
-    mocker.patch("my_lib.sensor_data.get_last_event", return_value=my_lib.time.now())
+    def voice_play(wav_data):
+        voice_play.done = True
+
+    voice_play.done = False
+
+    mocker.patch("my_lib.voice.play", side_effect=voice_play)
+    sensor_mock(mocker, last_event=my_lib.time.now(), raining_sum=10, solar_rad=0)
+
+    move_to(time_machine, 0)
+
     app.do_work(config, 1)
 
-    check_notify_line(None)
+    check_notify_line("雨が降り始めました！")
+    # NOTE: 深夜は音声通知しない
+    assert not voice_play.done
+
+
+def test_basic_with_rainfall_2(config, mocker, time_machine):
+    import my_lib.time
+
+    def voice_play(wav_data):
+        voice_play.done = True
+
+    voice_play.done = False
+
+    mocker.patch("my_lib.voice.play", side_effect=voice_play)
+    sensor_mock(mocker, last_event=my_lib.time.now(), raining_sum=0.1, solar_rad=0)
+
+    move_to(time_machine, 0)
+
+    app.do_work(config, 1)
+
+    check_notify_line("雨が降り始めました！")
+    # NOTE: 総雨量が少ない場合は音声通知しない
+    assert not voice_play.done
 
 
 def test_basic_without_rainfall(config, mocker):
-    mocker.patch(
-        "my_lib.sensor_data.fetch_data",
-        return_value={
-            "value": [0],
-            "time": [],
-            "valid": True,
-        },
+    sensor_mock(
+        mocker, last_event=my_lib.time.now() - datetime.timedelta(days=1), raining_sum=10, solar_rad=0
     )
-    mocker.patch(
-        "my_lib.sensor_data.get_last_event",
-        return_value=my_lib.time.now() - datetime.timedelta(days=1),
-    )
+
     app.do_work(config, 1)
 
     check_notify_line(None)
