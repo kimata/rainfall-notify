@@ -47,8 +47,7 @@ test-walk-through:
         - test-prepare
 
     script:
-        - rye run pytest tests/test_basic.py
-
+        - rye run pytest --timeout=60 --numprocesses=auto --verbosity=1 tests/test_basic.py
 
 deploy:
     stage: deploy

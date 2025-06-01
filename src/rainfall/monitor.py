@@ -160,10 +160,12 @@ def notify_voice_impl(config, raining_sum, precip_sum):
     return True
 
 
+def get_process_start():
+    return datetime.datetime.fromtimestamp(psutil.Process().create_time(), tz=my_lib.time.get_zoneinfo())
+
+
 def is_notify_done(config, raining_start, mode):
-    process_start = datetime.datetime.fromtimestamp(
-        psutil.Process().create_time(), tz=my_lib.time.get_zoneinfo()
-    )
+    process_start = get_process_start()
 
     if (raining_start - process_start).total_seconds() < -60 * 10:
         # NONE 雨の降り始めがプログラム開始前の場合、通知をしない
@@ -172,12 +174,12 @@ def is_notify_done(config, raining_start, mode):
 
     raining_before = (my_lib.time.now() - raining_start).total_seconds()
 
-    if raining_before >= my_lib.footprint.elapsed(pathlib.Path(config["notify"]["footprint"][mode]["file"])):
+    if raining_before >= my_lib.footprint.elapsed(config["notify"]["footprint"][mode]["file"]):
         # NOTE: 既に通知している場合
         return True
-    elif my_lib.footprint.elapsed(pathlib.Path(config["notify"]["footprint"][mode]["file"])) < (30 * 60):
+    elif my_lib.footprint.elapsed(config["notify"]["footprint"][mode]["file"]) < (30 * 60):
         # NOTE: 30分内に通知している場合は、連続した雨とみなす
-        my_lib.footprint.update(pathlib.Path(config["notify"]["footprint"][mode]["file"]))
+        my_lib.footprint.update(config["notify"]["footprint"][mode]["file"])
         return True
 
     return False
