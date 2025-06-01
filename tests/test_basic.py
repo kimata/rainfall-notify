@@ -95,9 +95,27 @@ def sensor_mock(mocker, last_event, raining_sum, solar_rad):
     mocker.patch("my_lib.sensor_data.get_last_event", return_value=last_event)
 
 
+def check_liveness(config):
+    import healthz
+
+    liveness = healthz.check_liveness(
+        [
+            {
+                "name": name,
+                "liveness_file": pathlib.Path(config["liveness"]["file"][name]),
+                "interval": config[name]["interval_sec"],
+            }
+            for name in ["watch"]
+        ]
+    )
+
+    assert liveness, "Liveness が更新されていません。"
+
+
 ######################################################################
 def test_basic(config):
     app.do_work(config, 1)
+    check_liveness(config)
 
 
 def test_basic_with_rainfall_0(config, mocker, time_machine):

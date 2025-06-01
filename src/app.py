@@ -12,7 +12,6 @@ Options:
 """
 
 import logging
-import pathlib
 import time
 
 import my_lib.footprint

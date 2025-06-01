@@ -15,7 +15,8 @@ import pathlib
 import sys
 
 import my_lib.healthz
-from docopt import docopt
+
+SCHEMA_CONFIG = "config.schema"
 
 
 def check_liveness(target_list):
@@ -28,18 +29,21 @@ def check_liveness(target_list):
 
 ######################################################################
 if __name__ == "__main__":
+    import docopt
     import my_lib.config
     import my_lib.logger
+    import my_lib.pretty
 
-    args = docopt(__doc__)
+    args = docopt.docopt(__doc__)
 
     config_file = args["-c"]
-    debug_mode = args["-d"]
+    debug_mode = args["-D"]
 
-    my_lib.logger.init("hems.rasp-aqua", level=logging.DEBUG if debug_mode else logging.INFO)
+    log_level = logging.DEBUG if debug_mode else logging.INFO
 
-    logging.info("Using config config: %s", config_file)
-    config = my_lib.config.load(config_file)
+    my_lib.logger.init("notify.rainfall", level=log_level)
+
+    config = my_lib.config.load(config_file, pathlib.Path(SCHEMA_CONFIG))
 
     target_list = [
         {
@@ -49,6 +53,8 @@ if __name__ == "__main__":
         }
         for name in ["watch"]
     ]
+
+    logging.debug(my_lib.pretty.format(target_list))
 
     if check_liveness(target_list):
         logging.info("OK.")
