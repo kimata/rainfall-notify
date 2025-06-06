@@ -26,7 +26,7 @@ import psutil
 
 PERIOD_HOURS = 3  # NOTE: Yahoo天気のデータは3時間毎の降雨量なのでそれに合わせる
 SUM_MIN = 3  # NOTE: 直近の雨量を積算する期間[分]
-SOLAR_RAD_THRESHOLD = 700  # 日射量がこれよりある場合は、雨の降り始め扱いにしない
+SOLAR_RAD_THRESHOLD = 600  # 日射量がこれよりある場合は、雨の降り始め扱いにしない
 
 
 def get_solar_rad(config, raining_start):
@@ -177,7 +177,8 @@ def is_notify_done(config, raining_start, mode):
     solar_rad = get_solar_rad(config, raining_start)
     if (solar_rad is not None) and (solar_rad >= SOLAR_RAD_THRESHOLD):
         logging.warning("Rain detected by sensor, but ignored due to high solar radiation.")
-        # NOTE: 雨の降り始め時点で日射量が多い場合は無視する
+        # NOTE: 雨の降り始め時点で日射量が多い場合、光学式雨量計の誤検知の可能性が高いので、
+        # 無視する (狐の嫁入りの可能性もありますが...)
         my_lib.footprint.update(config["notify"]["footprint"][mode]["file"])
         return True
 
