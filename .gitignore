@@ -48,6 +48,7 @@ Thumbs.db
 *.wav
 *.txt
 requirements*.lock
+config.yaml
 
 # Logs
 *.log
