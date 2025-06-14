@@ -7,7 +7,6 @@ RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
     build-essential \
     libasound2-dev
 
-
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PATH=/root/.rye/shims/:$PATH
 
