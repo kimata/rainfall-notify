@@ -3,15 +3,15 @@ liveness:
         watch: /dev/shm/healthz
 
 influxdb:
-    url: http://proxy.green-rabbit.net:8086
-    org: home
-    token: strBCB9segqccgxsR5Xe_9RnCqkBFYX9aOKvxVR4lr3iLEb7HXuGqsN40YU6DIb6TZm9bvKLW5OWQS7sB8AQbQ==
+    url: http://your-influxdb-server:8086
+    org: your-org
+    token: your-influxdb-token-here
     bucket: sensor
 
 
 voice:
     server:
-        url: http://192.168.0.20:50021
+        url: http://your-voice-server:50021
 
 rain_cloud:
     view:
