@@ -3,11 +3,11 @@
 Liveness のチェックを行います
 
 Usage:
-  healthz.py [-c CONFIG] [-d]
+  healthz.py [-c CONFIG] [-D]
 
 Options:
   -c CONFIG         : CONFIG を設定ファイルとして読み込んで実行します。[default: config.yaml]
-  -d                : デバッグモードで動作します。
+  -D                : デバッグモードで動作します。
 """
 
 import logging

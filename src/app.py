@@ -3,7 +3,7 @@
 雨の降り始めを通知します。
 
 Usage:
-  app.py [-c CONFIG] [-D] [-n COUNT]
+  app.py [-c CONFIG] [-n COUNT] [-D]
 
 Options:
   -c CONFIG         : CONFIG を設定ファイルとして読み込んで実行します。[default: config.yaml]
