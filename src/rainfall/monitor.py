@@ -195,7 +195,7 @@ def notify_line(config, raining_start, precip_sum):
 
 
 def notify_voice(config, raining_start, raining_sum, precip_sum):
-    logging.info("Notify by LINE")
+    logging.info("Notify by VOICE")
     if notify_voice_impl(config, raining_sum, precip_sum):
         my_lib.footprint.update(pathlib.Path(config["notify"]["footprint"]["voice"]["file"]))
         return True
@@ -228,8 +228,6 @@ def should_notify_voice(config, raining_start, raining_sum, precip_sum, hour):
         # NOTE: 指定された時間内ではなかったら音声通知しない
         logging.info("Skipping notify by voice (out of hour: %d)", hour)
         return False
-
-    logging.info("Notify by voice")
 
     return True
 
