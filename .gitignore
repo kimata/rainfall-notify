@@ -47,7 +47,6 @@ Thumbs.db
 # Project specific
 *.wav
 *.txt
-query.json
 requirements*.lock
 
 # Logs
