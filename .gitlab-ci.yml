@@ -2,7 +2,7 @@ image: registry.green-rabbit.net:5000/kimata/local_ubuntu:250615_38f4fdb9
 
 variables:
     UV_LINK_MODE: copy
-    UV_CACHE_DIR: .uv-cache
+    UV_CACHE_DIR: /root/.cache/uv 
 
 stages:
     - build-image
