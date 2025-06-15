@@ -6,11 +6,6 @@ stages:
     - test
     - deploy
     - renovate
-
-variables:
-    UV_LINK_MODE: copy
-    UV_COMPILE_BYTECODE: 1
-    UV_CACHE_DIR: /root/.cache/uv
     
 build-image:
     stage: build-image
