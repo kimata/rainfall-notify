@@ -38,10 +38,12 @@ test-prepare:
         - apt update
         - apt install --yes libasound2-dev portaudio19-dev
         - uv sync --locked --no-editable
+        - pwd
+        - ls -la .venv
 
     artifacts:
         paths:
-            - /root/.venv
+            - .venv
             - /root/.local/share/uv
             - /root/.cache/uv
         expire_in: 1 hour
@@ -52,7 +54,7 @@ test-prepare:
                 - pyproject.toml
             prefix: ${CI_COMMIT_REF_SLUG}-venv
           paths:
-            - /root/.venv
+            - .venv
           policy: pull-push
           
         - key: ${CI_COMMIT_REF_SLUG}-uv-toolchain
@@ -75,8 +77,10 @@ test-walk-through:
     script:
         - apt update
         - apt install --yes libportaudio2
+        - pwd
+        - ls -la .venv
         - source .venv/bin/activate
-        # - UV venv test
+        # - uv venv test
         - uv run pytest --timeout=60 --numprocesses=auto --verbosity=1 tests/test_basic.py
 
     cache:
