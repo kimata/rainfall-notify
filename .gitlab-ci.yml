@@ -34,7 +34,6 @@ test-prepare:
         - apt update
         - apt install --yes libasound2-dev portaudio19-dev
 
-        - uv venv
         - uv sync
 
     artifacts:
@@ -80,7 +79,7 @@ test-walk-through:
         
         # - echo "=== Running tests ==="
 
-        - source .venv/bin/activate
+        - uv venv 
         - uv run pytest --timeout=60 --numprocesses=auto --verbosity=1 tests/test_basic.py
         
     cache:
