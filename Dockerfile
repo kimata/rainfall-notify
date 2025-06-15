@@ -47,8 +47,8 @@ FROM python:3.12-slim-bookworm AS prod
 RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update && apt-get install --no-install-recommends --assume-yes \
-    alsa-utils
-
+    alsa-utils \
+    libportaudio2
 
 ARG IMAGE_BUILD_DATE
 ENV IMAGE_BUILD_DATE=${IMAGE_BUILD_DATE}
