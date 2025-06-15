@@ -18,11 +18,12 @@ RUN sh /uv-installer.sh && rm /uv-installer.sh
 ENV UV_SYSTEM_PYTHON=1
 ENV UV_COMPILE_BYTECODE=1
 
+# First layer: install stable core dependencies
 RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=.python-version,target=.python-version \
     --mount=type=bind,source=README.md,target=README.md \
     uv export --frozen --no-dev --no-hashes --format requirements-txt \
-    | grep -E "^(docopt|flask|requests|pydantic|influxdb-client|coloredlogs|psutil|scipy|numpy|pyaudiio)" requirements.lock \
+    | grep -E "^(docopt|influxdb-client|scipy|numpy|pyaudio)" \
     | grep -v "#" > requirements-core.txt && \
     pip install --break-system-packages -r requirements-core.txt
 
