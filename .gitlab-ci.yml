@@ -35,6 +35,7 @@ test-prepare:
         - apt install --yes libasound2-dev portaudio19-dev
         
         - uv sync
+        - uv venv list
 
     artifacts:
         paths:
@@ -76,7 +77,7 @@ test-walk-through:
         # - ls -la
         # - ls -la .venv || echo ".venv directory not found"
         # - echo "UV_PROJECT_ENVIRONMENT=${UV_PROJECT_ENVIRONMENT}"
-        - uv venv list
+        
         # - echo "=== Running tests ==="
 
         
