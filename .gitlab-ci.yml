@@ -1,4 +1,4 @@
-image: registry.green-rabbit.net:5000/kimata/local_ubuntu:241105B
+image: registry.green-rabbit.net:5000/kimata/local_ubuntu:250615_30db55f
 
 stages:
     - build-image
@@ -29,7 +29,7 @@ test-prepare:
     script:
         - apt update
         - apt install --yes build-essential libasound2-dev portaudio19-dev
-        - rye sync
+        - uv sync
 
     artifacts:
         paths:
@@ -49,7 +49,7 @@ test-walk-through:
         - test-prepare
 
     script:
-        - rye run pytest --timeout=60 --numprocesses=auto --verbosity=1 tests/test_basic.py
+        - uv run pytest --timeout=60 --numprocesses=auto --verbosity=1 tests/test_basic.py
 
 deploy:
     stage: deploy

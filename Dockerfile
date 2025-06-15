@@ -9,28 +9,28 @@ RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
     portaudio19-dev
 
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV PATH=/root/.rye/shims/:$PATH
+ENV PATH="/root/.local/bin/:$PATH"
 
-RUN --mount=type=cache,target=/tmp/rye-cache \
-    if [ ! -f /tmp/rye-cache/rye-install.sh ]; then \
-        curl -sSfL https://rye.astral.sh/get -o /tmp/rye-cache/rye-install.sh; \
-    fi && \
-    RYE_NO_AUTO_INSTALL=1 RYE_INSTALL_OPTION="--yes" bash /tmp/rye-cache/rye-install.sh
+ADD https://astral.sh/uv/install.sh /uv-installer.sh
 
-COPY pyproject.toml .python-version README.md .
+RUN sh /uv-installer.sh && rm /uv-installer.sh
 
-RUN rye lock
+ENV UV_SYSTEM_PYTHON=1
+ENV UV_COMPILE_BYTECODE=1
 
-# First install core dependencies that rarely change
-RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
-    grep -E "^(docopt|flask|requests|pydantic|influxdb-client|coloredlogs|psutil|scipy|numpy|pyaudiio)" requirements.lock | grep -v "#" > requirements-core.txt && \
+RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=bind,source=.python-version,target=.python-version \
+    --mount=type=bind,source=README.md,target=README.md \
+    uv export --frozen --no-dev --no-hashes --format requirements-txt \
+    | grep -E "^(docopt|flask|requests|pydantic|influxdb-client|coloredlogs|psutil|scipy|numpy|pyaudiio)" requirements.lock \
+    | grep -v "#" > requirements-core.txt && \
     pip install --break-system-packages -r requirements-core.txt
 
-
-# Then install all dependencies (pip will skip already installed ones)
-RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
-    pip install --break-system-packages -r requirements.lock
-
+RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=bind,source=.python-version,target=.python-version \
+    --mount=type=bind,source=README.md,target=README.md \
+    uv export --frozen --no-dev --format requirements-txt > requirements.txt && \
+    pip install --break-system-packages -r requirements.txt
 
 # Clean up dependencies
 FROM build AS deps-cleanup

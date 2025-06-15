@@ -28,7 +28,7 @@ packages = ["src/rainfall"]
 [tool.hatch.metadata]
 allow-direct-references = true
 
-[tool.rye]
+[tool.uv]
 managed = true
 dev-dependencies = [
     "flaky>=3.8.1",
