@@ -41,7 +41,7 @@ test-prepare:
 
     artifacts:
         paths:
-            - .venv
+            - /root/.venv
             - /root/.local/share/uv
             - /root/.cache/uv
         expire_in: 1 hour
@@ -52,7 +52,7 @@ test-prepare:
                 - pyproject.toml
             prefix: ${CI_COMMIT_REF_SLUG}-venv
           paths:
-            - .venv
+            - /root/.venv
           policy: pull-push
           
         - key: ${CI_COMMIT_REF_SLUG}-uv-toolchain
