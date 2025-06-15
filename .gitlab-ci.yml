@@ -32,13 +32,8 @@ test-prepare:
 
     script:
         - apt update
-        - apt install --yes build-essential libasound2-dev portaudio19-dev
+        - apt install --yes libasound2-dev portaudio19-dev
         - uv sync
-
-    artifacts:
-        paths:
-            - .venv
-            - /root/.cache
 
     cache:
         - key:
@@ -62,8 +57,9 @@ test-prepare:
 test-walk-through:
     stage: test
 
-    dependencies:
-        - test-prepare
+    needs:
+        - job: test-prepare
+          artifacts: true
 
     script:
         - uv run pytest --timeout=60 --numprocesses=auto --verbosity=1 tests/test_basic.py
