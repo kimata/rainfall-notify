@@ -15,7 +15,7 @@ dependencies = [
     "my-lib @ git+https://github.com/kimata/my-py-lib@4613e4237165962a31375615937ae18cbc2d2f2f",
     "scipy>=1.14.1",
     "numpy>=2.1.3",
-    "sounddevice>=0.5.2",
+    "pyaudio>=0.2.14",
 ]
 
 [build-system]
