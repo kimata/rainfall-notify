@@ -33,9 +33,9 @@ test-prepare:
     script:
         - apt update
         - apt install --yes libasound2-dev portaudio19-dev
-        
+
+        - uv venv
         - uv sync
-        - uv venv list
 
     artifacts:
         paths:
