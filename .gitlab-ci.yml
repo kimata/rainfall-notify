@@ -80,7 +80,7 @@ test-walk-through:
         
         # - echo "=== Running tests ==="
 
-        
+        - source .venv/bin/activate
         - uv run pytest --timeout=60 --numprocesses=auto --verbosity=1 tests/test_basic.py
         
     cache:
