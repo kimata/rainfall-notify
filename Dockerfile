@@ -21,16 +21,19 @@ ENV UV_COMPILE_BYTECODE=1
 # First layer: install stable core dependencies
 RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=.python-version,target=.python-version \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=README.md,target=README.md \
-    uv export --frozen --no-dev --no-hashes --format requirements-txt \
-    | grep -E "^(docopt|influxdb-client|scipy|numpy|pyaudio)" \
+    uv export --no-dev --frozen --format requirements-txt --no-hashes \
+    | grep -E "^(docopt|influxdb-client|scipy|numpy|lxml|linebot|slack_sdk|pyaudio|requests)" \
     | grep -v "#" > requirements-core.txt && \
     pip install --break-system-packages -r requirements-core.txt
 
 RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=.python-version,target=.python-version \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=README.md,target=README.md \
-    uv export --frozen --no-dev --format requirements-txt > requirements.txt && \
+    uv export --no-dev --frozen --format requirements-txt --no-hashes \
+    > requirements.txt && \
     pip install --break-system-packages -r requirements.txt
 
 # Clean up dependencies
