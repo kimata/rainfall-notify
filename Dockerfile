@@ -15,16 +15,12 @@ ADD https://astral.sh/uv/install.sh /uv-installer.sh
 
 RUN sh /uv-installer.sh && rm /uv-installer.sh
 
-ENV UV_SYSTEM_PYTHON=1 \
-    UV_CACHE_DIR=/root/.cache/uv \
-    UV_LINK_MODE=copy
-
 RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=.python-version,target=.python-version \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=README.md,target=README.md \
     --mount=type=cache,target=/root/.cache/uv \
-    uv sync --locked
+    uv sync --locked --no-editable
 
 # Clean up dependencies
 FROM build AS deps-cleanup
@@ -50,8 +46,8 @@ COPY --from=deps-cleanup /usr/local/lib/python3.12/site-packages /usr/local/lib/
 
 WORKDIR /opt/rainfall-notify
 
-COPY . .
-
 COPY conf/asound.conf /etc
+
+COPY . .
 
 CMD ["./src/app.py"]
