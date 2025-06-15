@@ -7,9 +7,6 @@ stages:
     - deploy
     - renovate
 
-variables:
-    TAG: '"$(date +%y%m%d)_${CI_COMMIT_SHORT_SHA}"'
-    
 build-image:
     stage: build-image
 
@@ -17,6 +14,11 @@ build-image:
         BUILDER: arm_builder
 
     script:
+        - 'TAG="$(date +%y%m%d)_${CI_COMMIT_SHORT_SHA}"'
+        
+        - 'echo "Building with tag: ${TAG}"'
+
+      
         - export GIT_SSL_NO_VERIFY=1
         - git clone https://gitlab.green-rabbit.net/kimata/bot-config.git
         - mv bot-config/rainfall.yaml ./config.yaml
