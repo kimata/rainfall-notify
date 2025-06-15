@@ -7,6 +7,10 @@ stages:
     - deploy
     - renovate
 
+variables:
+    UV_PROJECT_ENVIRONMENT: "${CI_PROJECT_DIR}/.venv"
+
+    
 build-image:
     stage: build-image
 
@@ -29,9 +33,6 @@ build-image:
 
 test-prepare:
     stage: pre-test
-
-    variables:
-        UV_PROJECT_ENVIRONMENT: "${CI_PROJECT_DIR}/.venv"
 
     script:
         - apt update
