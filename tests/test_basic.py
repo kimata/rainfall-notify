@@ -29,16 +29,17 @@ def env_mock():
 def line_mock():
     with mock.patch(
         "linebot.v3.messaging.MessagingApi",
-        retunr_value=True,
+        return_value=True,
     ) as fixture:
         yield fixture
 
 
 @pytest.fixture(scope="session", autouse=True)
 def voice_play_mock():
-    with mock.patch(
-        "my_lib.voice.play",
-        retunr_value=True,
+    with mock.patch.multiple(
+        "my_lib",
+        voice=mock.Mock(play=mock.Mock(return_value=True)),
+        synthesize=mock.Mock(return_value=True),
     ) as fixture:
         yield fixture
 
