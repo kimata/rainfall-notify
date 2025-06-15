@@ -24,7 +24,6 @@ ENV UV_SYSTEM_PYTHON=1 \
 RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=.python-version,target=.python-version \
     --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=README.md,target=README.md \
     --mount=type=cache,target=/root/.cache/uv \
     uv export --no-dev --frozen --format requirements-txt --no-hashes \
     | grep -vE "^my-lib " | grep -v "#" > requirements-core.txt && \
@@ -33,7 +32,6 @@ RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
 RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=.python-version,target=.python-version \
     --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=README.md,target=README.md \
     --mount=type=cache,target=/root/.cache/uv \
     uv export --no-dev --frozen --format requirements-txt --no-hashes \
     > requirements.txt && \
