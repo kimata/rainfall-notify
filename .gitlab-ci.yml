@@ -75,7 +75,8 @@ test-walk-through:
     script:
         - apt update
         - apt install --yes libportaudio2
-        # - uv venv test
+        - source .venv/bin/activate
+        # - UV venv test
         - uv run pytest --timeout=60 --numprocesses=auto --verbosity=1 tests/test_basic.py
 
     cache:
