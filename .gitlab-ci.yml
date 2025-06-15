@@ -34,6 +34,7 @@ test-prepare:
         - apt update
         - apt install --yes libasound2-dev portaudio19-dev
 
+        - uv venv
         - uv sync
 
     artifacts:
