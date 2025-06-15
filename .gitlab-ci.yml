@@ -1,4 +1,4 @@
-image: registry.green-rabbit.net:5000/kimata/local_ubuntu:250615_30db55f
+image: registry.green-rabbit.net:5000/kimata/local_ubuntu:250615_8520de3
 
 stages:
     - build-image
