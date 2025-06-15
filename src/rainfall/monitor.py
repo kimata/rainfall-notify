@@ -3,10 +3,11 @@
 降雨の開始を監視します。
 
 Usage:
-  monitor.py [-c CONFIG] [-d] [-D]
+  monitor.py [-c CONFIG] [-d] [-f] [-D]
 
 Options:
   -c CONFIG         : CONFIG を設定ファイルとして読み込んで実行します。[default: config.yaml]
+  -f                : 強制的に音声通知を行う。
   -d                : ダミーモードで実行します。CI テストで利用することを想定しています。
   -D                : デバッグモードで動作します。
 """
@@ -259,6 +260,7 @@ if __name__ == "__main__":
     args = docopt.docopt(__doc__)
 
     config_file = args["-c"]
+    force_mode = args["-f"]
     dummy_mode = args["-d"]
     debug_mode = args["-D"]
 
@@ -266,6 +268,9 @@ if __name__ == "__main__":
 
     config = my_lib.config.load(config_file)
 
-    watch(config, dummy_mode)
+    if force_mode:
+        notify_voice(config, my_lib.time.now(), 1, 2)
+    else:
+        watch(config, dummy_mode)
 
     logging.info("Finish.")
