@@ -1,4 +1,4 @@
-FROM python:3.12-bookworm AS build
+FROM python:3.13-bookworm AS build
 
 RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -45,7 +45,7 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
     find /usr/local/lib/python3.12/site-packages -name "__pycache__" -type d -delete
 
 
-FROM python:3.12-slim-bookworm AS prod
+FROM python:3.13-slim-bookworm AS prod
 
 RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
