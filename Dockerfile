@@ -21,8 +21,22 @@ COPY pyproject.toml .python-version README.md .
 
 RUN rye lock
 
+# First install core dependencies that rarely change
 RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
-    pip install --break-system-packages --no-cache-dir -r requirements.lock
+    grep -E "^(docopt|flask|requests|pydantic|influxdb-client|coloredlogs|psutil|scipy|numpy|pyaudiio)" requirements.lock | grep -v "#" > requirements-core.txt && \
+    pip install --break-system-packages -r requirements-core.txt
+
+
+# Then install all dependencies (pip will skip already installed ones)
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
+    pip install --break-system-packages -r requirements.lock
+
+
+# Clean up dependencies
+FROM build AS deps-cleanup
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
+    find /usr/local/lib/python3.12/site-packages -name "*.pyc" -delete && \
+    find /usr/local/lib/python3.12/site-packages -name "__pycache__" -type d -delete
 
 
 FROM python:3.12-slim-bookworm AS prod
@@ -38,7 +52,7 @@ ENV IMAGE_BUILD_DATE=${IMAGE_BUILD_DATE}
 
 ENV TZ=Asia/Tokyo
 
-COPY --from=build /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=deps-cleanup /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 
 WORKDIR /opt/rainfall-notify
 
