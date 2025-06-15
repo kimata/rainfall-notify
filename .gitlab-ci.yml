@@ -34,14 +34,13 @@ test-prepare:
         - apt update
         - apt install --yes libasound2-dev portaudio19-dev
         
-        - uv venv --python-preference only-system
+        - uv python install 3.12
         - uv sync
 
     artifacts:
         paths:
             - .venv
-            - /root/.local
-            - /root/.cache
+            - /root/.local/share/uv
         expire_in: 1 hour
 
     cache:
