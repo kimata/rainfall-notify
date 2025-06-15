@@ -72,6 +72,7 @@ test-walk-through:
           artifacts: true
 
     script:
+        - apt install --yes libportaudio2
         - uv run pytest --timeout=60 --numprocesses=auto --verbosity=1 tests/test_basic.py
         
     cache:
