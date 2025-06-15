@@ -5,7 +5,8 @@ RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install --no-install-recommends --assume-yes \
     curl \
     build-essential \
-    libasound2-dev
+    libasound2-dev \
+    portaudio19-dev
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PATH=/root/.rye/shims/:$PATH
