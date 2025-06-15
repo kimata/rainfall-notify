@@ -27,7 +27,7 @@ RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=cache,target=/root/.cache/uv \
     uv export --no-dev --frozen --format requirements-txt --no-hashes \
     | grep -vE "^my-lib " | grep -v "#" > requirements-core.txt && \
-    uv run pip install -r requirements-core.txt
+    uv pip install -r requirements-core.txt
 
 RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=.python-version,target=.python-version \
@@ -35,8 +35,8 @@ RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=README.md,target=README.md \
     --mount=type=cache,target=/root/.cache/uv \
     uv export --no-dev --frozen --format requirements-txt --no-hashes \
-    > requirements.txt && \
-    uv run pip install -r requirements.txt
+    | grep -E "^my-lib " | grep -v "#" > requirements-my-lib.txt && \
+    uv pip install -r requirements-my-lib.txt
 
 # Clean up dependencies
 FROM build AS deps-cleanup
