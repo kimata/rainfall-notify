@@ -1,4 +1,4 @@
-image: registry.green-rabbit.net:5000/kimata/local_ubuntu:250615_8520de3
+image: registry.green-rabbit.net:5000/kimata/local_ubuntu:250615_b8184cc1
 
 stages:
     - build-image
@@ -33,9 +33,7 @@ test-prepare:
     script:
         - apt update
         - apt install --yes libasound2-dev portaudio19-dev
-        - uv venv
-        - source .venv/bin/activate
-        - uv sync
+        - uv sync --locked --no-editable
 
     artifacts:
         paths:
@@ -74,7 +72,6 @@ test-walk-through:
         - apt update
         - apt install --yes libportaudio2
         # - uv venv test
-        - source .venv/bin/activate
         - uv run pytest --timeout=60 --numprocesses=auto --verbosity=1 tests/test_basic.py
 
     cache:

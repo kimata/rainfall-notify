@@ -15,8 +15,10 @@ ADD https://astral.sh/uv/install.sh /uv-installer.sh
 
 RUN sh /uv-installer.sh && rm /uv-installer.sh
 
-ENV UV_SYSTEM_PYTHON=1
-ENV UV_COMPILE_BYTECODE=1
+ENV UV_SYSTEM_PYTHON=1 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_CACHE_DIR=/root/.cache/uv \
+    UV_LINK_MODE=copy
 
 # 更新頻度が高い my-lib 以外のライブラリをまずインストール
 RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
@@ -25,7 +27,7 @@ RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=README.md,target=README.md \
     uv export --no-dev --frozen --format requirements-txt --no-hashes \
     | grep -vE "^my-lib " | grep -v "#" > requirements-core.txt && \
-    pip install --break-system-packages -r requirements-core.txt
+    uv run pip install --break-system-packages -r requirements-core.txt
 
 RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=.python-version,target=.python-version \
@@ -33,7 +35,7 @@ RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=README.md,target=README.md \
     uv export --no-dev --frozen --format requirements-txt --no-hashes \
     > requirements.txt && \
-    pip install --break-system-packages -r requirements.txt
+    uv run pip install --break-system-packages -r requirements.txt
 
 # Clean up dependencies
 FROM build AS deps-cleanup
