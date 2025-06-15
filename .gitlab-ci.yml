@@ -18,7 +18,6 @@ build-image:
         
         - 'echo "Building with tag: ${TAG}"'
 
-      
         - export GIT_SSL_NO_VERIFY=1
         - git clone https://gitlab.green-rabbit.net/kimata/bot-config.git
         - mv bot-config/rainfall.yaml ./config.yaml
@@ -42,10 +41,23 @@ test-prepare:
             - /root/.cache
 
     cache:
-        key: ${CI_JOB_NAME}
-        paths:
+        - key:
+            files:
+                - pyproject.toml
+            prefix: ${CI_COMMIT_REF_SLUG}-venv
+          paths:
             - .venv
+          policy: pull-push
+          
+        - key: ${CI_COMMIT_REF_SLUG}-uv-toolchain
+          paths:
+            - /root/.local
+          policy: pull-push
+          
+        - key: ${CI_COMMIT_REF_SLUG}-cache
+          paths:
             - /root/.cache
+          policy: pull-push
 
 test-walk-through:
     stage: test
@@ -55,6 +67,23 @@ test-walk-through:
 
     script:
         - uv run pytest --timeout=60 --numprocesses=auto --verbosity=1 tests/test_basic.py
+        
+    cache:
+        - key:
+            files:
+                - pyproject.toml
+            prefix: ${CI_COMMIT_REF_SLUG}-venv
+          policy: pull
+
+        - key: ${CI_COMMIT_REF_SLUG}-uv-toolchain
+          paths:
+            - /root/.local
+          policy: pull
+          
+        - key: ${CI_COMMIT_REF_SLUG}-cache
+          paths:
+            - /root/.cache
+          policy: pull
 
 deploy:
     stage: deploy
