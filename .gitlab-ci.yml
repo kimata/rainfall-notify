@@ -35,6 +35,13 @@ test-prepare:
         - apt install --yes libasound2-dev portaudio19-dev
         - uv sync
 
+    artifacts:
+        paths:
+            - .venv
+            - /root/.local
+            - /root/.cache
+        expire_in: 1 hour
+
     cache:
         - key:
             files:
