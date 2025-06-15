@@ -1,0 +1,54 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:base",
+        ":timezone(Asia/Tokyo)",
+        "group:allNonMajor",
+        ":automergePatch",
+        ":automergeMinor",
+        ":semanticCommits"
+    ],
+    "hostRules": [
+        {
+            "matchHost": "registry.green-rabbit.net:5000"
+        }
+    ],
+    "labels": ["renovate", "dependencies"],
+    "schedule": ["every weekend"],
+    "prConcurrentLimit": 3,
+    "prCreation": "not-pending",
+
+    "packageRules": [
+        {
+            "matchPaths": [".gitlab-ci.yml"],
+            "matchPackagePatterns": ["local_playwright"],
+            "enabled": false
+        },
+        {
+            "description": "Python patch updates",
+            "matchManagers": ["pip_requirements", "pip_setup"],
+            "matchUpdateTypes": ["patch"],
+            "groupName": "Python patch updates",
+            "automerge": true
+        },
+        {
+            "description": "Critical security updates",
+            "matchDatasources": ["pypi"],
+            "matchUpdateTypes": ["patch", "minor"],
+            "matchPackagePatterns": ["^@angular/"],
+            "prPriority": 10,
+            "automerge": true
+        }
+    ],
+
+    "vulnerabilityAlerts": {
+        "labels": ["security"],
+        "automerge": true,
+        "prPriority": 20
+    },
+
+    "postUpdateOptions": [
+    ],
+
+    "ignorePaths": ["**/dist/**", "**/build/**"]
+}
