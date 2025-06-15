@@ -37,8 +37,8 @@ def line_mock():
 @pytest.fixture(scope="session", autouse=True)
 def voice_play_mock():
     with mock.patch.multiple(
-        "my_lib",
-        voice=mock.Mock(play=mock.Mock(return_value=True)),
+        "my_lib.voice",
+        play=mock.Mock(return_value=True),
         synthesize=mock.Mock(return_value=True),
     ) as fixture:
         yield fixture
