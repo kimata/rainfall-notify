@@ -7,6 +7,10 @@ stages:
     - deploy
     - renovate
 
+variables:
+    UV_LINK_MODE: copy
+
+    
 build-image:
     stage: build-image
 
@@ -29,9 +33,6 @@ build-image:
 
 test-prepare:
     stage: pre-test
-
-    variables:
-        UV_LINK_MODE: copy
     
     script:
         - apt update
