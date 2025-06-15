@@ -16,7 +16,6 @@ ADD https://astral.sh/uv/install.sh /uv-installer.sh
 RUN sh /uv-installer.sh && rm /uv-installer.sh
 
 ENV UV_SYSTEM_PYTHON=1 \
-    UV_COMPILE_BYTECODE=1 \
     UV_CACHE_DIR=/root/.cache/uv \
     UV_LINK_MODE=copy
 
