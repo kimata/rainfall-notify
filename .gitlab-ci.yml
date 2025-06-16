@@ -37,7 +37,8 @@ test-prepare:
         - apt update
         - apt install --yes libasound2-dev portaudio19-dev
         - uv sync --locked --no-editable
-
+        - ls -la .venv/bin
+        
     artifacts:
         paths:
             - .venv
@@ -76,7 +77,7 @@ test-walk-through:
         - apt update
         - apt install --yes libportaudio2
 
-        - ls -la .venv/bin/python3
+        - ls -la .venv/bin
         - uv run pytest --timeout=60 --numprocesses=auto --verbosity=1 tests/test_basic.py
 
     cache:
