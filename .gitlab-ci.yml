@@ -20,7 +20,6 @@ build-image:
 
     script:
         - 'TAG="$(date +%y%m%d)_${CI_COMMIT_SHORT_SHA}"'
-        
         - 'echo "Building: ${CI_REGISTRY_IMAGE}:${TAG}"'
 
         - export GIT_SSL_NO_VERIFY=1
@@ -73,7 +72,7 @@ test-walk-through:
         - apt update
         - apt install --yes libportaudio2
         
-        - uv run pytest --timeout=60 --numprocesses=auto --verbosity=1 tests/test_basic.py
+        - uv run pytest --timeout=60 --numprocesses=auto --verbosity=1 --junit-xml=tests/evidence/junit-report.xml tests/test_basic.py
 
     cache:
         - key:
@@ -90,11 +89,19 @@ test-walk-through:
             - .uv_python
           policy: pull
 
+    artifacts:
+        when: always
+        paths:
+            - tests/evidence/**
+        reports:
+            junit: tests/evidence/junit-report.xml
+
+          
 tag-latest:
     stage: tag-latest
 
     needs:
-        - test-walk-through  # テストが成功した場合のみ実行
+        - test-walk-through 
 
     script:
         - 'TAG="$(date +%y%m%d)_${CI_COMMIT_SHORT_SHA}"'
@@ -107,12 +114,14 @@ tag-latest:
         - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
           when: never
         - when: on_success
+
           
 deploy:
     stage: deploy
 
-    dependencies: []
-
+    needs:
+        - test-walk-through 
+    
     image:
         name: bitnami/kubectl:latest
         entrypoint: ['']
@@ -132,6 +141,7 @@ deploy:
           when: never
         - when: on_success
 
+          
 renovate:
     stage: renovate
     image:
