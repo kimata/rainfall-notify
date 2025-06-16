@@ -37,6 +37,7 @@ test-prepare:
         - apt update
         - apt install --yes libasound2-dev portaudio19-dev
         - uv sync --locked --no-editable
+        - ls -la /root/.local/share/uv/python/
         
     artifacts:
         paths:
@@ -57,12 +58,12 @@ test-prepare:
           
         - key: ${CI_COMMIT_REF_SLUG}-uv-toolchain
           paths:
-            - /root/.local
+            - /root/.local/share/uv
           policy: pull-push
           
         - key: ${CI_COMMIT_REF_SLUG}-cache
           paths:
-            - /root/.cache
+            - /root/.cache/uv
           policy: pull-push
 
 test-walk-through:
@@ -75,12 +76,11 @@ test-walk-through:
     script:
         - apt update
         - apt install --yes libportaudio2
-        - find /root/.local/share/uv/python/
         - echo $PATH
         - source .venv/bin/activate
         - echo $PATH
-        - ls -la .venv/bin
         - ls -la /root/.local/share/uv/python/
+        - ls -la .venv/bin
         - uv run pytest --timeout=60 --numprocesses=auto --verbosity=1 tests/test_basic.py
 
     cache:
@@ -95,12 +95,12 @@ test-walk-through:
 
         - key: ${CI_COMMIT_REF_SLUG}-uv-toolchain
           paths:
-            - /root/.local
+            - /root/.local/share/uv
           policy: pull
           
         - key: ${CI_COMMIT_REF_SLUG}-cache
           paths:
-            - /root/.cache
+            - /root/.cache/uv
           policy: pull
 
 deploy:
