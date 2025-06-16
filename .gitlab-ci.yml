@@ -73,11 +73,10 @@ test-walk-through:
           artifacts: true
 
     script:
-        # - apt update
-        # - apt install --yes libportaudio2
+        - apt update
+        - apt install --yes libportaudio2
 
-        - ls -la .venv
-        - find .venv
+        - uv venv .venv
         - uv run pytest --timeout=60 --numprocesses=auto --verbosity=1 tests/test_basic.py
 
     cache:
