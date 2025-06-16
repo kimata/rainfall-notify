@@ -18,6 +18,7 @@ ADD https://astral.sh/uv/install.sh /uv-installer.sh
 
 RUN sh /uv-installer.sh && rm /uv-installer.sh
 
+# NOTE: システムにインストール
 RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=.python-version,target=.python-version \
     --mount=type=bind,source=uv.lock,target=uv.lock \
