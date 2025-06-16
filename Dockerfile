@@ -11,7 +11,8 @@ RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PATH="/root/.local/bin/:$PATH"
 
-ENV UV_SYSTEM_PYTHON=1
+ENV UV_SYSTEM_PYTHON=1 \
+    UV_LINK_MODE=copy
 
 ADD https://astral.sh/uv/install.sh /uv-installer.sh
 
@@ -22,7 +23,9 @@ RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=README.md,target=README.md \
     --mount=type=cache,target=/root/.cache/uv \
-    uv sync --locked --no-editable
+    uv export --frozen --no-dev --format requirements-txt > requirements.txt \
+    && uv pip install -r requirements.txt
+
 
 # Clean up dependencies
 FROM build AS deps-cleanup
