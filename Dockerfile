@@ -11,6 +11,8 @@ RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PATH="/root/.local/bin/:$PATH"
 
+ENV UV_SYSTEM_PYTHON=1
+
 ADD https://astral.sh/uv/install.sh /uv-installer.sh
 
 RUN sh /uv-installer.sh && rm /uv-installer.sh
