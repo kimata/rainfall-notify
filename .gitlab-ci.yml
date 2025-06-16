@@ -2,7 +2,6 @@ image: registry.green-rabbit.net:5000/kimata/local_ubuntu:250615_38f4fdb9
 
 variables:
     UV_LINK_MODE: copy
-    UV_CACHE_DIR: /root/.cache/uv 
 
 stages:
     - build-image
@@ -37,7 +36,6 @@ test-prepare:
     script:
         - apt update
         - apt install --yes libasound2-dev portaudio19-dev
-        - uv venv
         - uv sync --locked --no-editable
 
     artifacts:
@@ -77,10 +75,8 @@ test-walk-through:
     script:
         - apt update
         - apt install --yes libportaudio2
-        - pwd
-        - ls -la .venv
-        - source .venv/bin/activate
-        # - uv venv test
+
+        - uv venv
         - uv run pytest --timeout=60 --numprocesses=auto --verbosity=1 tests/test_basic.py
 
     cache:
