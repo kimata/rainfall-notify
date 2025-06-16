@@ -37,11 +37,10 @@ test-prepare:
         - apt update
         - apt install --yes libasound2-dev portaudio19-dev
         - uv sync --locked --no-editable
-        - ls -la .venv/bin
         
     artifacts:
         paths:
-            - .venv
+            - ${CI_PROJECT_DIR}/.venv
             - /root/.local/share/uv
             - /root/.cache/uv
         expire_in: 1 hour
@@ -53,7 +52,7 @@ test-prepare:
                 - .gitlab-ci.yml
             prefix: ${CI_COMMIT_REF_SLUG}-venv
           paths:
-            - .venv
+            - ${CI_PROJECT_DIR}/.venv
           policy: pull-push
           
         - key: ${CI_COMMIT_REF_SLUG}-uv-toolchain
@@ -90,6 +89,8 @@ test-walk-through:
                 - pyproject.toml
                 - .gitlab-ci.yml
             prefix: ${CI_COMMIT_REF_SLUG}-venv
+          paths:
+            - ${CI_PROJECT_DIR}/.venv
           policy: pull
 
         - key: ${CI_COMMIT_REF_SLUG}-uv-toolchain
