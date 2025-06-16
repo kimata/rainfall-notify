@@ -38,8 +38,6 @@ test-prepare:
         - apt update
         - apt install --yes libasound2-dev portaudio19-dev
         - uv sync --locked --no-editable
-        - pwd
-        - ls -la .venv
 
     artifacts:
         paths:
@@ -52,6 +50,7 @@ test-prepare:
         - key:
             files:
                 - pyproject.toml
+                - .gitlab-ci.yml
             prefix: ${CI_COMMIT_REF_SLUG}-venv
           paths:
             - .venv
@@ -87,6 +86,7 @@ test-walk-through:
         - key:
             files:
                 - pyproject.toml
+                - .gitlab-ci.yml
             prefix: ${CI_COMMIT_REF_SLUG}-venv
           policy: pull
 
