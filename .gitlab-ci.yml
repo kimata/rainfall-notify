@@ -8,6 +8,7 @@ stages:
     - build-image
     - pre-test
     - test
+    - tag-latest
     - deploy
     - renovate
     
@@ -94,6 +95,24 @@ test-walk-through:
             - .uv_python
           policy: pull
 
+tag-latest:
+    stage: tag-latest
+
+    needs:
+        - test-walk-through  # テストが成功した場合のみ実行
+
+    script:
+        - 'TAG="$(date +%y%m%d)_${CI_COMMIT_SHORT_SHA}"'
+        - 'echo "Tagging ${CI_REGISTRY_IMAGE}:${TAG} as latest"'
+        - docker pull ${CI_REGISTRY_IMAGE}:${TAG}
+        - docker tag ${CI_REGISTRY_IMAGE}:${TAG} ${CI_REGISTRY_IMAGE}:latest
+        - docker push ${CI_REGISTRY_IMAGE}:latest
+        
+    rules:
+        - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+          when: never
+        - when: on_success
+          
 deploy:
     stage: deploy
 
@@ -104,9 +123,11 @@ deploy:
         entrypoint: ['']
 
     script:
+        - 'TAG="$(date +%y%m%d)_${CI_COMMIT_SHORT_SHA}"'
         - kubectl config get-contexts
         - kubectl config use-context kimata/rainfall-notify:pod-rollout
-        - kubectl --insecure-skip-tls-verify=true rollout restart -n bot deployment rainfall-notify-deployment
+        - kubectl --insecure-skip-tls-verify=true -n bot set image deployment/rainfall-notify-deployment rainfall-notify=${CI_REGISTRY_IMAGE}:${TAG}
+        - kubectl --insecure-skip-tls-verify=true -n bot rollout status deployment/rainfall-notify-deployment
 
     rules:
         # NOTE: 自動実行ではデプロイしない
