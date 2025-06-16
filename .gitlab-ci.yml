@@ -76,10 +76,12 @@ test-walk-through:
     script:
         - apt update
         - apt install --yes libportaudio2
+        - find /root/.local/share/uv/python/
         - echo $PATH
         - source .venv/bin/activate
         - echo $PATH
         - ls -la .venv/bin
+        - ls -la /root/.local/share/uv/python/
         - uv run pytest --timeout=60 --numprocesses=auto --verbosity=1 tests/test_basic.py
 
     cache:
