@@ -30,12 +30,15 @@ RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
 
 # Clean up dependencies
 FROM build AS deps-cleanup
+ARG PYTHON_VERSION
+
 RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
     find /usr/local/lib/python${PYTHON_VERSION}/site-packages -name "*.pyc" -delete && \
     find /usr/local/lib/python${PYTHON_VERSION}/site-packages -name "__pycache__" -type d -delete
 
 
 FROM python:${PYTHON_VERSION}-slim-bookworm AS prod
+ARG PYTHON_VERSION
 
 RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \

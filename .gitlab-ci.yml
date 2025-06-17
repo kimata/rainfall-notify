@@ -104,7 +104,8 @@ tag-latest:
     stage: tag-latest
 
     needs:
-        - test-walk-through 
+        - job: test-walk-through
+          artifacts: false
 
     script:
         - 'TAG="$(date +%y%m%d)_${CI_COMMIT_SHORT_SHA}"'
@@ -123,7 +124,8 @@ deploy:
     stage: deploy
 
     needs:
-        - test-walk-through 
+        - job: test-walk-through
+          artifacts: false
     
     image:
         name: bitnami/kubectl:latest
