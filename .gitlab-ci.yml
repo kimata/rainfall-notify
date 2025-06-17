@@ -137,7 +137,7 @@ deploy:
         - kubectl config get-contexts
         - kubectl config use-context kimata/rainfall-notify:pod-rollout
         
-        - kubectl --insecure-skip-tls-verify=true -n bot set image deployment/rainfall-notify-deployment rainfall-notify=$IMAGE --record
+        - kubectl --insecure-skip-tls-verify=true -n bot set image deployment/rainfall-notify-deployment rainfall-notify=${IMAGE} --record
         - kubectl --insecure-skip-tls-verify=true -n bot rollout status deployment/rainfall-notify-deployment --timeout=120s
 
     rules:
