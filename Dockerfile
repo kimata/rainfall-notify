@@ -1,4 +1,5 @@
-FROM python:3.13-bookworm AS build
+ARG PYTHON_VERSION=3.13
+FROM python:${PYTHON_VERSION}-bookworm AS build
 
 RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -30,11 +31,11 @@ RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
 # Clean up dependencies
 FROM build AS deps-cleanup
 RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
-    find /usr/local/lib/python3.13/site-packages -name "*.pyc" -delete && \
-    find /usr/local/lib/python3.13/site-packages -name "__pycache__" -type d -delete
+    find /usr/local/lib/python${PYTHON_VERSION}/site-packages -name "*.pyc" -delete && \
+    find /usr/local/lib/python${PYTHON_VERSION}/site-packages -name "__pycache__" -type d -delete
 
 
-FROM python:3.13-slim-bookworm AS prod
+FROM python:${PYTHON_VERSION}-slim-bookworm AS prod
 
 RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -47,7 +48,7 @@ ENV IMAGE_BUILD_DATE=${IMAGE_BUILD_DATE}
 
 ENV TZ=Asia/Tokyo
 
-COPY --from=deps-cleanup /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
+COPY --from=deps-cleanup /usr/local/lib/python${PYTHON_VERSION}/site-packages /usr/local/lib/python${PYTHON_VERSION}/site-packages
 
 WORKDIR /opt/rainfall-notify
 
