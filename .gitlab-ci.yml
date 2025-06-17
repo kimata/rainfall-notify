@@ -5,12 +5,22 @@ variables:
     UV_PYTHON_INSTALL_DIR: ${CI_PROJECT_DIR}/.uv_python
 
 stages:
+    - generate-tag
     - build-image
     - pre-test
     - test
     - tag-latest
     - deploy
     - renovate
+
+generate-tag:
+    stage: generate-tag
+    script:
+        - echo "TAG=$(date +%y%m%d)_${CI_COMMIT_SHORT_SHA}" > tag.env
+    artifacts:
+        reports:
+            dotenv: tag.env
+        expire_in: 1 hour
     
 build-image:
     stage: build-image
@@ -19,7 +29,6 @@ build-image:
         BUILDER: arm_builder
 
     script:
-        - 'TAG="$(date +%y%m%d)_${CI_COMMIT_SHORT_SHA}"'
         - 'echo "Building: ${CI_REGISTRY_IMAGE}:${TAG}"'
 
         - export GIT_SSL_NO_VERIFY=1
@@ -104,11 +113,11 @@ tag-latest:
     stage: tag-latest
 
     needs:
+        - generate-tag
         - job: test-walk-through
           artifacts: false
 
     script:
-        - 'TAG="$(date +%y%m%d)_${CI_COMMIT_SHORT_SHA}"'
         - 'echo "Tagging ${CI_REGISTRY_IMAGE}:${TAG} as latest"'
         - docker pull ${CI_REGISTRY_IMAGE}:${TAG}
         - docker tag ${CI_REGISTRY_IMAGE}:${TAG} ${CI_REGISTRY_IMAGE}:latest
@@ -124,6 +133,7 @@ deploy:
     stage: deploy
 
     needs:
+        - generate-tag
         - job: test-walk-through
           artifacts: false
     
@@ -132,7 +142,6 @@ deploy:
         entrypoint: ['']
 
     script:
-        - 'TAG="$(date +%y%m%d)_${CI_COMMIT_SHORT_SHA}"'
         - 'IMAGE="${CI_REGISTRY_IMAGE}:${TAG}"'
         - 'echo "Deploying image: $IMAGE"'
         
