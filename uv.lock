@@ -1645,7 +1645,7 @@ dev = [
     { name = "pytest-mock", specifier = ">=3.14.0" },
     { name = "pytest-playwright", specifier = ">=0.5.1" },
     { name = "pytest-timeout", specifier = ">=2.4.0" },
-    { name = "pytest-xdist", specifier = ">=3.7.0" },
+    { name = "pytest-xdist", specifier = ">=3.6.1" },
     { name = "time-machine", specifier = ">=2.15.0" },
 ]
 
