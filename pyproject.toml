@@ -18,6 +18,24 @@ dependencies = [
     "pyaudio>=0.2.14",
 ]
 
+
+[dependency-groups]
+dev = [
+    "flaky>=3.8.1",
+    "playwright>=1.45.1",
+    "pytest-cov>=5.0.0",
+    "pytest-html>=4.1.1",
+    "pytest-mock>=3.14.0",
+    "pytest-playwright>=0.5.1",
+    "pytest-xdist>=3.6.1",
+    "time-machine>=2.15.0",
+    "pytest>=8.3.2",
+    "pytest-timeout>=2.4.0",
+]
+
+[tool.uv]
+default-groups = ["dev"]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -28,26 +46,10 @@ packages = ["src/rainfall"]
 [tool.hatch.metadata]
 allow-direct-references = true
 
-[tool.uv]
-managed = true
-dev-dependencies = [
-    "flaky>=3.8.1",
-    "playwright>=1.45.1",
-    "pytest-cov>=5.0.0",
-    "pytest-html>=4.1.1",
-    "pytest-mock>=3.14.0",
-    "pytest-playwright>=0.5.1",
-    "pytest-xdist>=3.7.0",
-    "time-machine>=2.15.0",
-    "pytest>=8.3.2",
-    "pytest-timeout>=2.4.0",
-]
-
 [tool.pytest.ini_options]
 minversion = "6.0"
 
-addopts = "--verbose --timeout=120 --log-file-level=DEBUG --log-format=\"%(asctime)s %(levelname)s %(message)s\" --log-format=\"%(asctime)s %(levelname)s [%(filename)s:%(lineno)s %(funcName)s] %(message)s\" --capture=sys --html=tests/evidence/index.htm --self-contained-html --cov=src --cov-report=html -vv"
-
+addopts = "--verbose --timeout=120 --log-file-level=DEBUG --log-format=\"%(asctime)s %(levelname)s %(message)s\" --log-format=\"%(asctime)s %(levelname)s [%(filename)s:%(lineno)s %(funcName)s] %(message)s\" --capture=sys --html=tests/evidence/index.htm --self-contained-html --cov=src --cov-report=html"
 
 testpaths = [
     "tests",
