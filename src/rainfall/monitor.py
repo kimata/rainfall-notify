@@ -133,7 +133,13 @@ def check_forecast(config, hour):
 
 
 def notify_voice_impl(config, raining_sum, precip_sum):
-    message = "雨が降り始めました。"
+    if (
+        my_lib.footprint.elapsed(config["notify"]["footprint"]["voice"]["file"]) < 3 * 60 * 60
+    ):  # NOTE: 前の通知から 3時間以内の場合、言葉を変える
+        message = "また、雨が降り始めました。"
+    else:
+        message = "雨が降り始めました。"
+
     if raining_sum >= 0.1:
         message += f"過去{SUM_MIN}分間に{raining_sum:.1f}mm降っています。"
     if precip_sum >= 0.1:
