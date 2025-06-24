@@ -8,7 +8,6 @@ RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
     libasound2-dev \
     portaudio19-dev
 
-ENV PYTHONDONTWRITEBYTECODE=1
 ENV PATH="/root/.local/bin/:$PATH"
 
 ENV UV_SYSTEM_PYTHON=1 \
@@ -26,7 +25,6 @@ RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=cache,target=/root/.cache/uv \
     uv export --frozen --no-group dev --format requirements-txt > requirements.txt \
     && uv pip install -r requirements.txt
-
 
 FROM python:${PYTHON_VERSION}-slim-bookworm AS prod
 ARG PYTHON_VERSION
@@ -47,7 +45,6 @@ COPY --from=build /usr/local/lib/python${PYTHON_VERSION}/site-packages /usr/loca
 WORKDIR /opt/rainfall-notify
 
 COPY conf/asound.conf /etc
-
 COPY . .
 
 CMD ["./src/app.py"]
