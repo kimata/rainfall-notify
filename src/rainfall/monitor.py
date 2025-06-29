@@ -15,6 +15,7 @@ Options:
 import datetime
 import logging
 import pathlib
+import threading
 import time
 
 import my_lib.footprint
@@ -148,12 +149,24 @@ def notify_voice_impl(config, raining_sum, precip_sum):
     message_wav = my_lib.voice.synthesize(config, message)
 
     if "chime" in config["notify"]["voice"]:
+        chime_duration = config["notify"]["voice"]["chime"]["duration"]
+        
         with pathlib.Path(config["notify"]["voice"]["chime"]["file"]).open("rb") as file:
-            my_lib.voice.play(
-                my_lib.voice.convert_wav_data(file.read()), config["notify"]["voice"]["chime"]["duration"]
-            )
-
-    my_lib.voice.play(message_wav)
+            chime_wav = my_lib.voice.convert_wav_data(file.read())
+        
+        # チャイムをバックグラウンドで再生開始
+        chime_thread = threading.Thread(target=my_lib.voice.play, args=(chime_wav,))
+        chime_thread.start()
+        
+        # 指定時間後に音声メッセージを再生
+        voice_thread = threading.Timer(chime_duration, my_lib.voice.play, args=(message_wav,))
+        voice_thread.start()
+        
+        # 両方のスレッドの完了を待つ
+        chime_thread.join()
+        voice_thread.join()
+    else:
+        my_lib.voice.play(message_wav)
 
     return True
 
